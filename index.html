@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📂 Planejador Raquel</title>
+    <title>📂 Planejador Raquel Aguiar</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>📂</text></svg>">
 
     <style>
@@ -11,7 +11,7 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { width: 100%; max-width: 1000px; margin: auto; }
         .school-selector { background: #9a8c98; padding: 15px; border-radius: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
-        select { padding: 8px 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        select { padding: 8px 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; background: white; }
         .header-main { text-align: center; margin-bottom: 20px; }
         .home-schedule { background: var(--white); padding: 20px; border-radius: 25px; margin-bottom: 30px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
@@ -50,7 +50,7 @@
         <select id="escolaAtiva" onchange="trocarEscola()"></select>
     </div>
     <div class="header-main"><h1>Raquel Aguiar</h1><p id="nomeEscolaSub" style="font-weight:bold; color:#9a8c98;"></p></div>
-    <div class="home-schedule"><h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário Semanal</h3><div class="grid-home-days" id="homeDaysGrid"></div></div>
+    <div class="home-schedule"><h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Meus Horários</h3><div class="grid-home-days" id="homeDaysGrid"></div></div>
     
     <h3>📂 Pastas de Turmas</h3>
     <div class="turmas-grid" id="turmaGrid"></div>
@@ -58,15 +58,15 @@
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
             <h3 id="tituloTurmaDinamico"></h3>
-            <p style="font-size: 0.9rem; color: #999;">Defina as aulas (pode escrever várias):</p>
-            <div id="gradeHorario" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
+            <p style="font-size: 0.9rem; color: #999; margin-bottom: 10px;">Defina as aulas desta turma:</p>
+            <div id="gradeHorario" style="display:flex; flex-direction:column; gap:8px;"></div>
         </div>
         <div class="section-card">
-            <h3>✍️ Novo Registro</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10">
-            <input type="text" id="aulaInput" placeholder="Aulas (Ex: 1ª, 2ª e 5ª aula)">
+            <h3>✍️ Novo Planejamento</h3>
+            <input type="text" id="dataInput" placeholder="Data">
+            <input type="text" id="aulaInput" placeholder="Aula(s) do dia">
             <textarea id="textoInput" rows="5" placeholder="Conteúdo..."></textarea>
-            <button class="btn-main" onclick="salvarNovo()">💾 Salvar Tudo</button>
+            <button class="btn-main" onclick="salvarNovo()">💾 Salvar Agora</button>
         </div>
         <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
     </div>
@@ -75,29 +75,51 @@
 <script>
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/"; 
     const cores = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
-    let config = JSON.parse(localStorage.getItem('confRaquelv7')) || { ativa: "esc_1", nomes: { "esc_1": "UE. João Tavares da Costa", "esc_2": "UE. Natividade Marinho" } };
-    let banco = JSON.parse(localStorage.getItem('bancoRaquelv7')) || {};
-    let chaveAtiva = "", indexEditando = null;
+    
+    let config = { ativa: "esc_1", nomes: { "esc_1": "UE. João Tavares da Costa", "esc_2": "UE. Natividade Marinho" } };
+    let banco = {};
+    let chaveAtiva = "";
+
+    // FUNÇÃO QUE ESCUTA O BANCO EM TEMPO REAL
+    async function iniciarEscutaRealtime() {
+        const fetchDados = async () => {
+            try {
+                const res = await fetch(`${URL_FIREBASE}/dados.json`);
+                const dados = await res.json();
+                if (dados) {
+                    // Só atualiza se houver mudança real para evitar loops
+                    if (JSON.stringify(banco) !== JSON.stringify(dados.banco) || JSON.stringify(config) !== JSON.stringify(dados.config)) {
+                        config = dados.config;
+                        banco = dados.banco;
+                        atualizarUI();
+                        if (chaveAtiva) {
+                            renderizarHorariosLocal();
+                            renderizarHistoricoLocal();
+                        }
+                    }
+                }
+            } catch (e) { console.error("Erro na conexão"); }
+        };
+        
+        // Verifica atualizações a cada 3 segundos (mais leve que o realtime puro do SDK)
+        setInterval(fetchDados, 3000);
+        fetchDados(); // Primeira carga
+    }
 
     async function salvar() { 
-        localStorage.setItem('confRaquelv7', JSON.stringify(config)); 
-        localStorage.setItem('bancoRaquelv7', JSON.stringify(banco)); 
         renderizarHome();
         try {
             await fetch(`${URL_FIREBASE}/dados.json`, { method: 'PUT', body: JSON.stringify({config, banco}) });
-        } catch(e) { console.error("Erro ao sincronizar"); }
-    }
-
-    async function carregarSincronizacao() {
-        try {
-            const res = await fetch(`${URL_FIREBASE}/dados.json`);
-            const dados = await res.json();
-            if(dados) { config = dados.config; banco = dados.banco; atualizarUI(); }
-        } catch(e) { console.log("Offline"); }
+        } catch(e) { console.error("Erro ao salvar"); }
     }
 
     function getDiasEscola() { return (config.nomes[config.ativa].includes("Natividade")) ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"]; }
-    function trocarEscola() { config.ativa = document.getElementById('escolaAtiva').value; document.getElementById('painelTurma').style.display = 'none'; atualizarUI(); }
+    
+    function trocarEscola() { 
+        config.ativa = document.getElementById('escolaAtiva').value; 
+        document.getElementById('painelTurma').style.display = 'none'; 
+        atualizarUI(); 
+    }
     
     function atualizarUI() {
         const sel = document.getElementById('escolaAtiva');
@@ -123,31 +145,34 @@
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoInput').value;
         if(!d || !t) return alert("Preencha data e conteúdo.");
+        if(!banco[chaveAtiva].roteiros) banco[chaveAtiva].roteiros = [];
         banco[chaveAtiva].roteiros.unshift({ data: d, aula: a, texto: t });
-        salvar(); renderizarHistoricoLocal();
+        salvar();
         document.getElementById('dataInput').value = ''; document.getElementById('aulaInput').value = ''; document.getElementById('textoInput').value = '';
     }
 
     function renderizarHistoricoLocal() {
         const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
-        if(banco[chaveAtiva] && banco[chaveAtiva].roteiros) {
+        if(banco[chaveAtiva]?.roteiros) {
             banco[chaveAtiva].roteiros.forEach((r, i) => {
-                lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${i})"><span>📅 <b>${r.data}</b> - ${r.aula || 'Aula'}</span><span style="color:#9a8c98; font-size:12px;">📂 Abrir</span></div>`;
+                lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${i})"><span>📅 <b>${r.data}</b> - ${r.aula || 'Aula'}</span><span>📂</span></div>`;
             });
         }
     }
 
-    function abrirModal(i) { indexEditando = i; const r = banco[chaveAtiva].roteiros[i]; document.getElementById('modalTitulo').innerText = `${r.data} - ${r.aula || 'Planejamento'}`; document.getElementById('modalTexto').value = r.texto; document.getElementById('modalVisualizacao').style.display = 'flex'; }
+    function abrirModal(i) { indexEditando = i; const r = banco[chaveAtiva].roteiros[i]; document.getElementById('modalTitulo').innerText = `${r.data}`; document.getElementById('modalTexto').value = r.texto; document.getElementById('modalVisualizacao').style.display = 'flex'; }
     function fecharModal() { document.getElementById('modalVisualizacao').style.display = 'none'; }
-    function salvarEdicaoModal() { banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; salvar(); alert("Salvo!"); }
-    function addTopicoModal() { const ex = prompt("Novo item:"); if(ex) { document.getElementById('modalTexto').value += (document.getElementById('modalTexto').value ? "\n" : "") + "• " + ex; salvarEdicaoModal(); } }
-    function excluirModal() { if(confirm("Excluir?")) { banco[chaveAtiva].roteiros.splice(indexEditando, 1); salvar(); renderizarHistoricoLocal(); fecharModal(); } }
+    function salvarEdicaoModal() { banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; salvar(); fecharModal(); }
+    function addTopicoModal() { const ex = prompt("Novo item:"); if(ex) { document.getElementById('modalTexto').value += "\n• " + ex; } }
+    function excluirModal() { if(confirm("Excluir?")) { banco[chaveAtiva].roteiros.splice(indexEditando, 1); salvar(); fecharModal(); } }
 
     function renderizarHorariosLocal() {
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
-        const h = banco[chaveAtiva].horários || {};
         getDiasEscola().forEach(dia => {
-            cont.innerHTML += `<div style="flex:1; min-width:140px;"><small><b>${dia}</b></small><input type="text" value="${h[dia] || ''}" onblur="banco['${chaveAtiva}'].horários['${dia}']=this.value; salvar();"></div>`;
+            cont.innerHTML += `<div style="display:flex; align-items:center; gap:10px;">
+                <span style="min-width:70px; font-weight:bold;">${dia}:</span>
+                <input type="text" placeholder="Ex: 1ª e 2ª" value="${banco[chaveAtiva].horários[dia] || ''}" onblur="banco['${chaveAtiva}'].horários['${dia}']=this.value; salvar();">
+            </div>`;
         });
     }
 
@@ -167,8 +192,7 @@
         });
     }
     
-    atualizarUI();
-    carregarSincronizacao();
+    iniciarEscutaRealtime();
 </script>
 </body>
 </html>
