@@ -46,31 +46,26 @@
 
 <div class="container">
     <div class="school-selector">
-        <span>🏫 Unidade Ativa:</span>
+        <span>🏫 Unidade:</span>
         <select id="escolaAtiva" onchange="trocarEscola()"></select>
     </div>
     <div class="header-main"><h1>Raquel Aguiar</h1><p id="nomeEscolaSub" style="font-weight:bold; color:#9a8c98;"></p></div>
+    <div class="home-schedule"><h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário Semanal</h3><div class="grid-home-days" id="homeDaysGrid"></div></div>
     
-    <div class="home-schedule">
-        <h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário da Semana</h3>
-        <div class="grid-home-days" id="homeDaysGrid"></div>
-    </div>
-
-    <h3>📂 Turmas</h3>
+    <h3>📂 Pastas de Turmas</h3>
     <div class="turmas-grid" id="turmaGrid"></div>
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
             <h3 id="tituloTurmaDinamico"></h3>
-            <p style="font-size: 0.9rem; color: #999; margin-bottom: 10px;">Quais aulas tens nesta turma? (Ex: 1ª e 2ª)</p>
+            <p style="font-size: 0.9rem; color: #999;">Defina as aulas (pode escrever várias):</p>
             <div id="gradeHorario" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
         </div>
-
         <div class="section-card">
             <h3>✍️ Novo Registro</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="mascaraData(this)" maxlength="10">
-            <input type="text" id="aulaInput" placeholder="Aulas (Ex: 3ª aula)">
-            <textarea id="textoInput" rows="5" placeholder="Conteúdo da aula..."></textarea>
+            <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10">
+            <input type="text" id="aulaInput" placeholder="Aulas (Ex: 1ª, 2ª e 5ª aula)">
+            <textarea id="textoInput" rows="5" placeholder="Conteúdo..."></textarea>
             <button class="btn-main" onclick="salvarNovo()">💾 Salvar Tudo</button>
         </div>
         <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
@@ -80,7 +75,6 @@
 <script>
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/"; 
     const cores = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
-    
     let config = JSON.parse(localStorage.getItem('confRaquelv7')) || { ativa: "esc_1", nomes: { "esc_1": "UE. João Tavares da Costa", "esc_2": "UE. Natividade Marinho" } };
     let banco = JSON.parse(localStorage.getItem('bancoRaquelv7')) || {};
     let chaveAtiva = "", indexEditando = null;
@@ -99,16 +93,11 @@
             const res = await fetch(`${URL_FIREBASE}/dados.json`);
             const dados = await res.json();
             if(dados) { config = dados.config; banco = dados.banco; atualizarUI(); }
-        } catch(e) { console.log("Modo Offline"); }
+        } catch(e) { console.log("Offline"); }
     }
 
     function getDiasEscola() { return (config.nomes[config.ativa].includes("Natividade")) ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"]; }
-    
-    function trocarEscola() { 
-        config.ativa = document.getElementById('escolaAtiva').value; 
-        document.getElementById('painelTurma').style.display = 'none'; 
-        atualizarUI(); 
-    }
+    function trocarEscola() { config.ativa = document.getElementById('escolaAtiva').value; document.getElementById('painelTurma').style.display = 'none'; atualizarUI(); }
     
     function atualizarUI() {
         const sel = document.getElementById('escolaAtiva');
@@ -125,28 +114,15 @@
             let cor = "#b7b7a4"; for (let p in cores) if (nome.includes(p)) cor = cores[p];
             const card = document.createElement('div'); card.className = 'card-turma'; card.style.borderTopColor = cor;
             card.innerHTML = `<b style="color:${cor}">${nome}</b>`;
-            card.onclick = () => { 
-                chaveAtiva = id; 
-                document.getElementById('painelTurma').style.display = 'block'; 
-                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome}`; 
-                renderizarHorariosLocal(); 
-                renderizarHistoricoLocal(); 
-            };
+            card.onclick = () => { chaveAtiva = id; document.getElementById('painelTurma').style.display = 'block'; document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome}`; renderizarHorariosLocal(); renderizarHistoricoLocal(); };
             grid.appendChild(card);
         });
         renderizarHome();
     }
 
-    function mascaraData(i) {
-        let v = i.value.replace(/\D/g, "");
-        if (v.length > 2) v = v.substring(0, 2) + "/" + v.substring(2);
-        if (v.length > 5) v = v.substring(0, 5) + "/" + v.substring(5, 10);
-        i.value = v;
-    }
-
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoInput').value;
-        if(!d || !t) return alert("Por favor, preencha a data e o conteúdo.");
+        if(!d || !t) return alert("Preencha data e conteúdo.");
         banco[chaveAtiva].roteiros.unshift({ data: d, aula: a, texto: t });
         salvar(); renderizarHistoricoLocal();
         document.getElementById('dataInput').value = ''; document.getElementById('aulaInput').value = ''; document.getElementById('textoInput').value = '';
@@ -161,36 +137,11 @@
         }
     }
 
-    function abrirModal(i) { 
-        indexEditando = i; 
-        const r = banco[chaveAtiva].roteiros[i]; 
-        document.getElementById('modalTitulo').innerText = `${r.data} - ${r.aula || 'Planejamento'}`; 
-        document.getElementById('modalTexto').value = r.texto; 
-        document.getElementById('modalVisualizacao').style.display = 'flex'; 
-    }
-    
+    function abrirModal(i) { indexEditando = i; const r = banco[chaveAtiva].roteiros[i]; document.getElementById('modalTitulo').innerText = `${r.data} - ${r.aula || 'Planejamento'}`; document.getElementById('modalTexto').value = r.texto; document.getElementById('modalVisualizacao').style.display = 'flex'; }
     function fecharModal() { document.getElementById('modalVisualizacao').style.display = 'none'; }
-    
-    function salvarEdicaoModal() { 
-        banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; 
-        salvar(); 
-        alert("Alterações guardadas!"); 
-    }
-    
-    function addTopicoModal() { 
-        const ex = prompt("Novo item:"); 
-        if(ex) { 
-            document.getElementById('modalTexto').value += (document.getElementById('modalTexto').value ? "\n" : "") + "• " + ex; 
-            salvarEdicaoModal(); 
-        } 
-    }
-    
-    function excluirModal() { 
-        if(confirm("Desejas apagar este registo?")) { 
-            banco[chaveAtiva].roteiros.splice(indexEditando, 1); 
-            salvar(); renderizarHistoricoLocal(); fecharModal(); 
-        } 
-    }
+    function salvarEdicaoModal() { banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; salvar(); alert("Salvo!"); }
+    function addTopicoModal() { const ex = prompt("Novo item:"); if(ex) { document.getElementById('modalTexto').value += (document.getElementById('modalTexto').value ? "\n" : "") + "• " + ex; salvarEdicaoModal(); } }
+    function excluirModal() { if(confirm("Excluir?")) { banco[chaveAtiva].roteiros.splice(indexEditando, 1); salvar(); renderizarHistoricoLocal(); fecharModal(); } }
 
     function renderizarHorariosLocal() {
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
