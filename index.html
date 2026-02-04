@@ -3,75 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planejador Raquel Aguiar</title>
+    <title>📂 Planejador Raquel</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>📂</text></svg>">
+
     <style>
         :root { --primary: #f8edeb; --accent: #fcd5ce; --text: #4a4e69; --white: #ffffff; --bg: #fdf8f7; --shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { width: 100%; max-width: 1000px; margin: auto; }
-        .school-selector { background: #9a8c98; padding: 12px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
-        select { padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: white; }
-        .home-schedule { background: var(--white); padding: 15px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
-        .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-        .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 80px; }
-        .day-box h4 { margin: 0 0 8px 0; text-align: center; color: #9a8c98; border-bottom: 1px solid var(--primary); }
-        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 25px; }
-        .card-turma { background: var(--white); padding: 15px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; transition: 0.2s; }
-        .schedule-line { font-size: 0.8rem; margin-bottom: 4px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
-        .section-card { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
-        .btn-main { background-color: #b7b7a4; color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        .btn-add { background: #84a59d; color: white; border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; }
-        .aula-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-        .aula-row input { margin: 0; font-size: 0.9rem; }
-        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); }
+        .school-selector { background: #9a8c98; padding: 15px; border-radius: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
+        select { padding: 8px 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .header-main { text-align: center; margin-bottom: 20px; }
+        .home-schedule { background: var(--white); padding: 20px; border-radius: 25px; margin-bottom: 30px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
+        .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 15px; padding: 12px; min-height: 80px; }
+        .day-box h4 { margin: 0 0 10px 0; text-align: center; color: #9a8c98; border-bottom: 1px solid var(--primary); }
+        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .card-turma { background: var(--white); padding: 18px; border-radius: 20px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border: 4px solid transparent; border-top-width: 8px; transition: 0.3s; }
+        .schedule-line { font-size: 0.82rem; margin-bottom: 6px; padding: 8px; border-radius: 10px; color: white; font-weight: 600; text-align: center; }
+        .section-card { background: var(--white); padding: 20px; border-radius: 25px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; font-family: inherit; }
+        .btn-main { background-color: #b7b7a4; color: white; border: none; padding: 15px; border-radius: 15px; cursor: pointer; width: 100%; font-weight: bold; }
+        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 15px; margin-bottom: 8px; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); }
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:1000; }
-        .modal-content { background: white; width: 90%; max-width: 600px; height: 80vh; padding: 20px; border-radius: 20px; position: relative; display: flex; flex-direction: column; }
+        .modal-content { background: white; width: 95%; max-width: 800px; height: 85vh; padding: 30px; border-radius: 25px; position: relative; display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
 
 <div id="modalVisualizacao" class="modal-overlay">
     <div class="modal-content">
-        <div style="border-bottom: 2px solid var(--primary); margin-bottom: 10px; padding-bottom: 5px; font-weight: bold; color: #9a8c98; display: flex; justify-content: space-between;">
-            <span id="modalTitulo"></span><button onclick="fecharModal()" style="background:none; border:none; font-size:25px; cursor:pointer;">×</button>
+        <div style="border-bottom: 2px solid var(--primary); margin-bottom: 15px; padding-bottom: 10px; font-weight: bold; color: #9a8c98; font-size: 1.4rem; display: flex; justify-content: space-between;">
+            <span id="modalTitulo"></span><button onclick="fecharModal()" style="background:none; border:none; font-size:30px; cursor:pointer; color:#999;">×</button>
         </div>
-        <textarea id="modalTexto" style="flex-grow: 1; resize: none; border: none; padding: 10px;"></textarea>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <div style="flex-grow: 1; display: flex; flex-direction: column;"><textarea id="modalTexto" style="flex-grow: 1; resize: none; font-size: 1.1rem; padding: 15px; border: none;"></textarea></div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button class="btn-main" style="background:#84a59d; flex:2;" onclick="salvarEdicaoModal()">💾 Salvar</button>
-            <button class="btn-main" style="background:#e5989b; flex:1;" onclick="excluirModal()">🗑️</button>
+            <button class="btn-main" style="background:#9a8c98; flex:1;" onclick="addTopicoModal()">➕ Tópico</button>
+            <button class="btn-main" style="background:#e5989b; flex:0.5;" onclick="excluirModal()">🗑️</button>
         </div>
     </div>
 </div>
 
 <div class="container">
     <div class="school-selector">
-        <span>🏫 Unidade:</span>
+        <span>🏫 Unidade Ativa:</span>
         <select id="escolaAtiva" onchange="trocarEscola()"></select>
     </div>
+    <div class="header-main"><h1>Raquel Aguiar</h1><p id="nomeEscolaSub" style="font-weight:bold; color:#9a8c98;"></p></div>
     
     <div class="home-schedule">
-        <h3 style="text-align:center; color:#9a8c98; margin:0 0 10px 0;">📅 Horário da Unidade</h3>
+        <h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário da Semana</h3>
         <div class="grid-home-days" id="homeDaysGrid"></div>
     </div>
-    
-    <h3>📂 Pastas de Turmas</h3>
+
+    <h3>📂 Turmas</h3>
     <div class="turmas-grid" id="turmaGrid"></div>
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
-            <h3 id="tituloTurmaDinamico" style="margin-top:0;"></h3>
-            <p style="font-size: 0.85rem; color: #999;">Adicione as aulas desta turma:</p>
-            <div id="gradeHorario" style="display:flex; flex-direction:column; gap:12px;"></div>
+            <h3 id="tituloTurmaDinamico"></h3>
+            <p style="font-size: 0.9rem; color: #999; margin-bottom: 10px;">Quais aulas tens nesta turma? (Ex: 1ª e 2ª)</p>
+            <div id="gradeHorario" style="display:flex; gap:10px; flex-wrap:wrap;"></div>
         </div>
 
         <div class="section-card">
-            <h3>✍️ Novo Planejamento</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10">
-            <input type="text" id="aulaInput" placeholder="Aulas (Ex: 1ª e 5ª aula)">
-            <textarea id="textoInput" rows="4" placeholder="Conteúdo da aula..."></textarea>
-            <button class="btn-main" onclick="salvarNovo()">💾 Salvar Registro</button>
+            <h3>✍️ Novo Registro</h3>
+            <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="mascaraData(this)" maxlength="10">
+            <input type="text" id="aulaInput" placeholder="Aulas (Ex: 3ª aula)">
+            <textarea id="textoInput" rows="5" placeholder="Conteúdo da aula..."></textarea>
+            <button class="btn-main" onclick="salvarNovo()">💾 Salvar Tudo</button>
         </div>
-
         <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
     </div>
 </div>
@@ -79,35 +80,40 @@
 <script>
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/"; 
     const cores = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
-    let config = { ativa: "esc_1", nomes: { "esc_1": "UE. João Tavares da Costa", "esc_2": "UE. Natividade Marinho" } };
-    let banco = {};
+    
+    let config = JSON.parse(localStorage.getItem('confRaquelv7')) || { ativa: "esc_1", nomes: { "esc_1": "UE. João Tavares da Costa", "esc_2": "UE. Natividade Marinho" } };
+    let banco = JSON.parse(localStorage.getItem('bancoRaquelv7')) || {};
     let chaveAtiva = "", indexEditando = null;
 
-    async function iniciarSinc() {
-        const fetchDados = async () => {
-            try {
-                const res = await fetch(`${URL_FIREBASE}/dados.json`);
-                const dados = await res.json();
-                if (dados && JSON.stringify(banco) !== JSON.stringify(dados.banco)) {
-                    config = dados.config; banco = dados.banco; atualizarUI();
-                    if(chaveAtiva) { renderizarHorariosLocal(); renderizarHistoricoLocal(); }
-                }
-            } catch (e) { console.log("Erro conexão"); }
-        };
-        setInterval(fetchDados, 3000); fetchDados();
+    async function salvar() { 
+        localStorage.setItem('confRaquelv7', JSON.stringify(config)); 
+        localStorage.setItem('bancoRaquelv7', JSON.stringify(banco)); 
+        renderizarHome();
+        try {
+            await fetch(`${URL_FIREBASE}/dados.json`, { method: 'PUT', body: JSON.stringify({config, banco}) });
+        } catch(e) { console.error("Erro ao sincronizar"); }
     }
 
-    async function salvar() { 
-        renderizarHome();
-        try { await fetch(`${URL_FIREBASE}/dados.json`, { method: 'PUT', body: JSON.stringify({config, banco}) }); } catch(e) {}
+    async function carregarSincronizacao() {
+        try {
+            const res = await fetch(`${URL_FIREBASE}/dados.json`);
+            const dados = await res.json();
+            if(dados) { config = dados.config; banco = dados.banco; atualizarUI(); }
+        } catch(e) { console.log("Modo Offline"); }
     }
 
     function getDiasEscola() { return (config.nomes[config.ativa].includes("Natividade")) ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"]; }
-    function trocarEscola() { config.ativa = document.getElementById('escolaAtiva').value; document.getElementById('painelTurma').style.display = 'none'; atualizarUI(); }
+    
+    function trocarEscola() { 
+        config.ativa = document.getElementById('escolaAtiva').value; 
+        document.getElementById('painelTurma').style.display = 'none'; 
+        atualizarUI(); 
+    }
     
     function atualizarUI() {
         const sel = document.getElementById('escolaAtiva');
         sel.innerHTML = Object.entries(config.nomes).map(([id, n]) => `<option value="${id}" ${id===config.ativa?'selected':''}>${n}</option>`).join('');
+        document.getElementById('nomeEscolaSub').innerText = config.nomes[config.ativa];
         renderizarTurmas();
     }
 
@@ -116,56 +122,31 @@
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
             const id = `${config.ativa}_${nome.replace(/\s/g, '_')}`;
             if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
-            let cor = cores[nome] || "#b7b7a4";
+            let cor = "#b7b7a4"; for (let p in cores) if (nome.includes(p)) cor = cores[p];
             const card = document.createElement('div'); card.className = 'card-turma'; card.style.borderTopColor = cor;
             card.innerHTML = `<b style="color:${cor}">${nome}</b>`;
-            card.onclick = () => { chaveAtiva = id; document.getElementById('painelTurma').style.display = 'block'; document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome}`; renderizarHorariosLocal(); renderizarHistoricoLocal(); };
+            card.onclick = () => { 
+                chaveAtiva = id; 
+                document.getElementById('painelTurma').style.display = 'block'; 
+                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome}`; 
+                renderizarHorariosLocal(); 
+                renderizarHistoricoLocal(); 
+            };
             grid.appendChild(card);
         });
         renderizarHome();
     }
 
-    function renderizarHorariosLocal() {
-        const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
-        getDiasEscola().forEach(dia => {
-            if(!banco[chaveAtiva].horários[dia]) banco[chaveAtiva].horários[dia] = [""];
-            let html = `<div><div style="display:flex; justify-content:space-between; align-items:center;"><b>${dia}</b> <button class="btn-add" onclick="addAulaInput('${dia}')">➕ Aula</button></div>`;
-            banco[chaveAtiva].horários[dia].forEach((val, idx) => {
-                html += `<div class="aula-row">
-                    <input type="text" placeholder="Ex: 1ª aula" value="${val}" onblur="atualizarAula('${dia}', ${idx}, this.value)">
-                    <button style="border:none; background:none; cursor:pointer;" onclick="removerAula('${dia}', ${idx})">❌</button>
-                </div>`;
-            });
-            cont.innerHTML += html + `</div>`;
-        });
-    }
-
-    function addAulaInput(dia) { banco[chaveAtiva].horários[dia].push(""); renderizarHorariosLocal(); }
-    function atualizarAula(dia, idx, val) { banco[chaveAtiva].horários[dia][idx] = val; salvar(); }
-    function removerAula(dia, idx) { banco[chaveAtiva].horários[dia].splice(idx, 1); salvar(); renderizarHorariosLocal(); }
-
-    function renderizarHome() {
-        const grid = document.getElementById('homeDaysGrid'); grid.innerHTML = '';
-        getDiasEscola().forEach(dia => {
-            let html = `<div class="day-box"><h4>${dia}</h4>`;
-            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(t => {
-                const id = `${config.ativa}_${t.replace(/\s/g, '_')}`;
-                const aulas = banco[id]?.horários?.[dia] || [];
-                aulas.forEach(aula => {
-                    if(aula.trim() !== "") {
-                        let cor = cores[t] || "#b7b7a4";
-                        html += `<div class="schedule-line" style="background:${cor}">${aula}: ${t}</div>`;
-                    }
-                });
-            });
-            grid.innerHTML += html + `</div>`;
-        });
+    function mascaraData(i) {
+        let v = i.value.replace(/\D/g, "");
+        if (v.length > 2) v = v.substring(0, 2) + "/" + v.substring(2);
+        if (v.length > 5) v = v.substring(0, 5) + "/" + v.substring(5, 10);
+        i.value = v;
     }
 
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoInput').value;
-        if(!d || !t) return alert("Preencha data e conteúdo.");
-        if(!banco[chaveAtiva].roteiros) banco[chaveAtiva].roteiros = [];
+        if(!d || !t) return alert("Por favor, preencha a data e o conteúdo.");
         banco[chaveAtiva].roteiros.unshift({ data: d, aula: a, texto: t });
         salvar(); renderizarHistoricoLocal();
         document.getElementById('dataInput').value = ''; document.getElementById('aulaInput').value = ''; document.getElementById('textoInput').value = '';
@@ -173,19 +154,70 @@
 
     function renderizarHistoricoLocal() {
         const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
-        if(banco[chaveAtiva]?.roteiros) {
+        if(banco[chaveAtiva] && banco[chaveAtiva].roteiros) {
             banco[chaveAtiva].roteiros.forEach((r, i) => {
-                lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${i})"><span>📅 <b>${r.data}</b> - ${r.aula || 'Aula'}</span><span>📂</span></div>`;
+                lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${i})"><span>📅 <b>${r.data}</b> - ${r.aula || 'Aula'}</span><span style="color:#9a8c98; font-size:12px;">📂 Abrir</span></div>`;
             });
         }
     }
 
-    function abrirModal(i) { indexEditando = i; const r = banco[chaveAtiva].roteiros[i]; document.getElementById('modalTitulo').innerText = `${r.data}`; document.getElementById('modalTexto').value = r.texto; document.getElementById('modalVisualizacao').style.display = 'flex'; }
+    function abrirModal(i) { 
+        indexEditando = i; 
+        const r = banco[chaveAtiva].roteiros[i]; 
+        document.getElementById('modalTitulo').innerText = `${r.data} - ${r.aula || 'Planejamento'}`; 
+        document.getElementById('modalTexto').value = r.texto; 
+        document.getElementById('modalVisualizacao').style.display = 'flex'; 
+    }
+    
     function fecharModal() { document.getElementById('modalVisualizacao').style.display = 'none'; }
-    function salvarEdicaoModal() { banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; salvar(); fecharModal(); }
-    function excluirModal() { if(confirm("Excluir registro?")) { banco[chaveAtiva].roteiros.splice(indexEditando, 1); salvar(); renderizarHistoricoLocal(); fecharModal(); } }
+    
+    function salvarEdicaoModal() { 
+        banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; 
+        salvar(); 
+        alert("Alterações guardadas!"); 
+    }
+    
+    function addTopicoModal() { 
+        const ex = prompt("Novo item:"); 
+        if(ex) { 
+            document.getElementById('modalTexto').value += (document.getElementById('modalTexto').value ? "\n" : "") + "• " + ex; 
+            salvarEdicaoModal(); 
+        } 
+    }
+    
+    function excluirModal() { 
+        if(confirm("Desejas apagar este registo?")) { 
+            banco[chaveAtiva].roteiros.splice(indexEditando, 1); 
+            salvar(); renderizarHistoricoLocal(); fecharModal(); 
+        } 
+    }
 
-    iniciarSinc();
+    function renderizarHorariosLocal() {
+        const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
+        const h = banco[chaveAtiva].horários || {};
+        getDiasEscola().forEach(dia => {
+            cont.innerHTML += `<div style="flex:1; min-width:140px;"><small><b>${dia}</b></small><input type="text" value="${h[dia] || ''}" onblur="banco['${chaveAtiva}'].horários['${dia}']=this.value; salvar();"></div>`;
+        });
+    }
+
+    function renderizarHome() {
+        const grid = document.getElementById('homeDaysGrid'); grid.innerHTML = '';
+        getDiasEscola().forEach(dia => {
+            let html = `<div class="day-box"><h4>${dia}</h4>`;
+            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(t => {
+                const id = `${config.ativa}_${t.replace(/\s/g, '_')}`;
+                const aula = banco[id]?.horários?.[dia];
+                if(aula) { 
+                    let cor = "#b7b7a4"; for (let p in cores) if (t.includes(p)) cor = cores[p]; 
+                    html += `<div class="schedule-line" style="background:${cor}">${aula}: ${t}</div>`; 
+                }
+            });
+            grid.innerHTML += html + `</div>`;
+        });
+    }
+    
+    atualizarUI();
+    carregarSincronizacao();
 </script>
 </body>
 </html>
