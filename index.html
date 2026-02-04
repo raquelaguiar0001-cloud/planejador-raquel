@@ -9,20 +9,20 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 1000px; margin: auto; }
         .school-selector { background: #9a8c98; padding: 12px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
-        select { padding: 6px 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; background: white; }
+        select { padding: 8px; border-radius: 8px; border: none; font-weight: bold; background: white; }
         .home-schedule { background: var(--white); padding: 15px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
         .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 80px; }
         .day-box h4 { margin: 0 0 8px 0; text-align: center; color: #9a8c98; border-bottom: 1px solid var(--primary); }
         .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 25px; }
-        .card-turma { background: var(--white); padding: 15px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; transition: 0.2s; }
+        .card-turma { background: var(--white); padding: 15px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; }
         .schedule-line { font-size: 0.8rem; margin-bottom: 4px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
         .section-card { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
         .btn-main { background-color: #b7b7a4; color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        .btn-add { background: #84a59d; color: white; border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; }
+        .btn-add { background: #84a59d; color: white; border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
         .aula-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--accent); }
+        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; padding: 12px; border-left: 5px solid var(--accent); }
     </style>
 </head>
 <body>
@@ -31,8 +31,8 @@
     <div class="school-selector">
         <span>🏫 Unidade:</span>
         <select id="escolaAtiva" onchange="trocarEscola()">
-            <option value="esc_1">UE. João Tavares da Costa</option>
-            <option value="esc_2">UE. Natividade Marinho</option>
+            <option value="JOAO_TAVARES">UE. João Tavares da Costa</option>
+            <option value="NATIVIDADE">UE. Natividade Marinho</option>
         </select>
     </div>
     
@@ -47,7 +47,7 @@
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
             <h3 id="tituloTurmaDinamico" style="margin-top:0;"></h3>
-            <div id="gradeHorario" style="display:flex; flex-direction:column; gap:12px;"></div>
+            <div id="gradeHorario"></div>
         </div>
 
         <div class="section-card">
@@ -65,120 +65,101 @@
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/"; 
     const cores = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
     
-    let config = { ativa: "esc_1" };
+    let escolaAtual = "JOAO_TAVARES";
     let banco = {};
     let chaveAtiva = "";
 
-    // RECUPERAÇÃO DE EMERGÊNCIA
-    function recuperarDados() {
-        const chavesAntigas = ['bancoRaquel', 'bancoRaquelv7', 'confRaquelv7'];
-        chavesAntigas.forEach(c => {
-            const dado = localStorage.getItem(c);
-            if(dado) {
-                const parsed = JSON.parse(dado);
-                if(c.includes('banco')) Object.assign(banco, parsed.banco || parsed);
+    async function carregarDados() {
+        try {
+            const res = await fetch(`${URL_FIREBASE}/dados_v2.json`);
+            const dados = await res.json();
+            if (dados) { 
+                banco = dados; 
+                atualizarTela();
             }
-        });
+        } catch (e) { console.log("Erro ao carregar"); }
     }
 
-    async function iniciarSinc() {
-        recuperarDados();
-        const load = async () => {
-            try {
-                const res = await fetch(`${URL_FIREBASE}/dados.json`);
-                const dados = await res.json();
-                if (dados && dados.banco) { 
-                    banco = dados.banco; 
-                    // NÃO sobrescrevemos a config.ativa vinda do Firebase para evitar o salto de escola
-                    atualizarUI(false); 
-                }
-            } catch (e) { console.log("Erro de conexão"); }
-        };
-        load();
-        setInterval(load, 5000); 
-    }
-
-    async function salvar() { 
-        localStorage.setItem('bancoRaquel', JSON.stringify(banco));
-        renderizarHome();
-        try { 
-            await fetch(`${URL_FIREBASE}/dados.json`, { 
+    async function enviarParaNuvem() {
+        try {
+            await fetch(`${URL_FIREBASE}/dados_v2.json`, { 
                 method: 'PUT', 
-                body: JSON.stringify({config: {ativa: config.ativa}, banco: banco}) 
-            }); 
-        } catch(e) {}
+                body: JSON.stringify(banco) 
+            });
+        } catch(e) { console.log("Erro ao sincronizar"); }
     }
 
-    function getDiasEscola() { 
-        const sel = document.getElementById('escolaAtiva');
-        const nomeEscola = sel.options[sel.selectedIndex].text;
-        return (nomeEscola.includes("Natividade")) ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"]; 
+    function trocarEscola() {
+        escolaAtual = document.getElementById('escolaAtiva').value;
+        document.getElementById('painelTurma').style.display = 'none';
+        chaveAtiva = "";
+        atualizarTela();
     }
 
-    function trocarEscola() { 
-        config.ativa = document.getElementById('escolaAtiva').value; 
-        document.getElementById('painelTurma').style.display = 'none'; 
-        atualizarUI(true); 
-    }
-    
-    function atualizarUI(resetPainel = true) {
+    function atualizarTela() {
         const sel = document.getElementById('escolaAtiva');
-        sel.value = config.ativa;
         document.getElementById('tituloEscola').innerText = "📅 Horário: " + sel.options[sel.selectedIndex].text;
         renderizarTurmas();
-        if(!resetPainel && chaveAtiva) {
-            renderizarHorariosLocal();
-            renderizarHistoricoLocal();
-        }
+        renderizarHome();
     }
 
     function renderizarTurmas() {
-        const grid = document.getElementById('turmaGrid'); grid.innerHTML = '';
+        const grid = document.getElementById('turmaGrid'); 
+        grid.innerHTML = '';
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
-            const id = `${config.ativa}_${nome.replace(/\s/g, '_')}`;
-            if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
-            const card = document.createElement('div'); card.className = 'card-turma'; card.style.borderTopColor = cores[nome];
+            const idUnico = `${escolaAtual}_${nome.replace(/\s/g, '_')}`;
+            if(!banco[idUnico]) banco[idUnico] = { roteiros: [], horários: {} };
+            
+            const card = document.createElement('div');
+            card.className = 'card-turma';
+            card.style.borderTopColor = cores[nome];
             card.innerHTML = `<b style="color:${cores[nome]}">${nome}</b>`;
-            card.onclick = () => { 
-                chaveAtiva = id; 
-                document.getElementById('painelTurma').style.display = 'block'; 
-                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome}`; 
-                renderizarHorariosLocal(); 
-                renderizarHistoricoLocal(); 
+            card.onclick = () => {
+                chaveAtiva = idUnico;
+                document.getElementById('painelTurma').style.display = 'block';
+                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome} (${sel.options[sel.selectedIndex].text})`;
+                renderizarGradeHoraria();
+                renderizarHistorico();
             };
             grid.appendChild(card);
         });
-        renderizarHome();
     }
 
-    function renderizarHorariosLocal() {
-        const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
+    function getDiasEscola() {
+        return (escolaAtual === "NATIVIDADE") ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"];
+    }
+
+    function renderizarGradeHoraria() {
+        const cont = document.getElementById('gradeHorario');
+        cont.innerHTML = '';
         getDiasEscola().forEach(dia => {
-            if(typeof banco[chaveAtiva].horários[dia] === 'string') banco[chaveAtiva].horários[dia] = [banco[chaveAtiva].horários[dia]];
             if(!banco[chaveAtiva].horários[dia]) banco[chaveAtiva].horários[dia] = [""];
-            
-            let html = `<div><div style="display:flex; justify-content:space-between; align-items:center;"><b>${dia}</b> <button class="btn-add" onclick="addAulaInput('${dia}')">➕ Aula</button></div>`;
+            let html = `<div style="margin-bottom:15px;"><div style="display:flex; justify-content:space-between;"><b>${dia}</b> <button class="btn-add" onclick="addAulaInput('${dia}')">➕ Aula</button></div>`;
             banco[chaveAtiva].horários[dia].forEach((val, idx) => {
                 html += `<div class="aula-row">
-                    <input type="text" value="${val}" onblur="banco['${chaveAtiva}'].horários['${dia}'][${idx}]=this.value; salvar();">
-                    <button style="border:none; background:none; cursor:pointer;" onclick="banco['${chaveAtiva}'].horários['${dia}'].splice(${idx}, 1); salvar(); renderizarHorariosLocal();">❌</button>
+                    <input type="text" value="${val}" onblur="banco['${chaveAtiva}'].horários['${dia}'][${idx}]=this.value; salvarTudo();">
+                    <button style="border:none; background:none;" onclick="banco['${chaveAtiva}'].horários['${dia}'].splice(${idx}, 1); salvarTudo(); renderizarGradeHoraria();">❌</button>
                 </div>`;
             });
             cont.innerHTML += html + `</div>`;
         });
     }
 
-    function addAulaInput(dia) { banco[chaveAtiva].horários[dia].push(""); renderizarHorariosLocal(); }
+    function addAulaInput(dia) {
+        banco[chaveAtiva].horários[dia].push("");
+        renderizarGradeHoraria();
+    }
 
     function renderizarHome() {
-        const grid = document.getElementById('homeDaysGrid'); grid.innerHTML = '';
+        const grid = document.getElementById('homeDaysGrid');
+        grid.innerHTML = '';
         getDiasEscola().forEach(dia => {
             let html = `<div class="day-box"><h4>${dia}</h4>`;
-            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(t => {
-                const id = `${config.ativa}_${t.replace(/\s/g, '_')}`;
-                const aulas = banco[id]?.horários?.[dia];
+            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nomeTurma => {
+                const idUnico = `${escolaAtual}_${nomeTurma.replace(/\s/g, '_')}`;
+                const aulas = banco[idUnico]?.horários?.[dia];
                 if(Array.isArray(aulas)) {
-                    aulas.forEach(aula => { if(aula) html += `<div class="schedule-line" style="background:${cores[t]}">${aula}: ${t}</div>`; });
+                    aulas.forEach(a => { if(a) html += `<div class="schedule-line" style="background:${cores[nomeTurma]}">${a}: ${nomeTurma}</div>`; });
                 }
             });
             grid.innerHTML += html + `</div>`;
@@ -186,24 +167,32 @@
     }
 
     function salvarNovo() {
-        const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoInput').value;
-        if(!d || !t) return alert("Preencha os campos.");
+        const d = document.getElementById('dataInput').value;
+        const a = document.getElementById('aulaInput').value;
+        const t = document.getElementById('textoInput').value;
+        if(!d || !t) return alert("Preencha data e conteúdo.");
+        
         banco[chaveAtiva].roteiros.unshift({ data: d, aula: a, texto: t });
-        salvar(); 
-        renderizarHistoricoLocal();
+        salvarTudo();
+        renderizarHistorico();
         document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoInput').value='';
     }
 
-    function renderizarHistoricoLocal() {
-        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
-        if(banco[chaveAtiva]?.roteiros) {
-            banco[chaveAtiva].roteiros.forEach((r) => {
-                lista.innerHTML += `<div class="roteiro-item"><span>📅 <b>${r.data}</b> - ${r.aula}</span></div>`;
-            });
-        }
+    function renderizarHistorico() {
+        const lista = document.getElementById('listaHistorico');
+        lista.innerHTML = '';
+        banco[chaveAtiva].roteiros.forEach(r => {
+            lista.innerHTML += `<div class="roteiro-item">📅 <b>${r.data}</b> - ${r.aula}<br><small>${r.texto.substring(0,50)}...</small></div>`;
+        });
     }
 
-    iniciarSinc();
+    function salvarTudo() {
+        renderizarHome();
+        enviarParaNuvem();
+    }
+
+    carregarDados();
+    setInterval(carregarDados, 8000); // Sincroniza a cada 8 segundos
 </script>
 </body>
 </html>
