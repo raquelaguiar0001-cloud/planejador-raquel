@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📂 Planejador Raquel Aguiar</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📂</text></svg>">
     
+    <title>📂 Planejador Raquel</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>📂</text></svg>">
+
     <style>
         :root { --primary: #f8edeb; --accent: #fcd5ce; --text: #4a4e69; --white: #ffffff; --bg: #fdf8f7; --shadow: 0 4px 12px rgba(0,0,0,0.08); }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
@@ -57,23 +58,53 @@
         <div class="section-card"><h3 id="tituloTurmaDinamico"></h3><div id="gradeHorario" style="display:flex; gap:10px; flex-wrap:wrap;"></div></div>
         <div class="section-card">
             <h3>✍️ Novo Planejamento</h3>
-            <input type="text" id="dataInput" placeholder="Data (040226)" oninput="mascaraData(this)" maxlength="10">
+            <input type="text" id="dataInput" placeholder="Data (apenas números)" oninput="mascaraData(this)" maxlength="10">
             <input type="text" id="aulaInput" placeholder="Ex: 1ª aula">
             <textarea id="textoInput" rows="5" placeholder="Conteúdo..."></textarea>
-            <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
+            <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Nuvem</button>
         </div>
         <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
     </div>
 </div>
 
 <script>
+    // CONFIGURAÇÃO DE SINCRONIZAÇÃO (VINCULADA AO SEU FIREBASE)
+    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/"; 
+
     const cores = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
     let config = JSON.parse(localStorage.getItem('confRaquelv7')) || { ativa: "esc_1", nomes: { "esc_1": "UE. João Tavares da Costa", "esc_2": "UE. Natividade Marinho" } };
     let banco = JSON.parse(localStorage.getItem('bancoRaquelv7')) || {};
-    let chaveAtiva = "", indexEditando = null;
+    let chaveAtiva = "";
+
+    // FUNÇÃO PARA SALVAR NA NUVEM E LOCAL
+    async function salvar() { 
+        localStorage.setItem('confRaquelv7', JSON.stringify(config)); 
+        localStorage.setItem('bancoRaquelv7', JSON.stringify(banco)); 
+        renderizarHome();
+        
+        try {
+            await fetch(`${URL_FIREBASE}/dados.json`, { 
+                method: 'PUT', 
+                body: JSON.stringify({config, banco}) 
+            });
+            console.log("Sincronizado!");
+        } catch(e) { console.error("Erro ao sincronizar"); }
+    }
+
+    // FUNÇÃO PARA CARREGAR DA NUVEM AO ABRIR
+    async function carregarSincronizacao() {
+        try {
+            const res = await fetch(`${URL_FIREBASE}/dados.json`);
+            const dados = await res.json();
+            if(dados) {
+                config = dados.config;
+                banco = dados.banco;
+                atualizarUI();
+            }
+        } catch(e) { console.log("Iniciando sem rede..."); }
+    }
 
     function getDiasEscola() { return (config.nomes[config.ativa].includes("Natividade")) ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"]; }
-    function salvar() { localStorage.setItem('confRaquelv7', JSON.stringify(config)); localStorage.setItem('bancoRaquelv7', JSON.stringify(banco)); renderizarHome(); }
     function trocarEscola() { config.ativa = document.getElementById('escolaAtiva').value; document.getElementById('painelTurma').style.display = 'none'; atualizarUI(); }
     
     function atualizarUI() {
@@ -115,14 +146,16 @@
 
     function renderizarHistoricoLocal() {
         const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
-        banco[chaveAtiva].roteiros.forEach((r, i) => {
-            lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${i})"><span>📅 <b>${r.data}</b> - ${r.aula}</span><span style="color:#9a8c98; font-size:12px;">📂 Abrir</span></div>`;
-        });
+        if(banco[chaveAtiva]) {
+            banco[chaveAtiva].roteiros.forEach((r, i) => {
+                lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${i})"><span>📅 <b>${r.data}</b> - ${r.aula}</span><span style="color:#9a8c98; font-size:12px;">📂 Abrir</span></div>`;
+            });
+        }
     }
 
     function abrirModal(i) { indexEditando = i; const r = banco[chaveAtiva].roteiros[i]; document.getElementById('modalTitulo').innerText = `${r.data} - ${r.aula}`; document.getElementById('modalTexto').value = r.texto; document.getElementById('modalVisualizacao').style.display = 'flex'; }
     function fecharModal() { document.getElementById('modalVisualizacao').style.display = 'none'; }
-    function salvarEdicaoModal() { banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; salvar(); alert("Salvo!"); }
+    function salvarEdicaoModal() { banco[chaveAtiva].roteiros[indexEditando].texto = document.getElementById('modalTexto').value; salvar(); alert("Salvo na Nuvem!"); }
     function addTopicoModal() { const ex = prompt("Novo tópico:"); if(ex) { document.getElementById('modalTexto').value += "\n\n• " + ex; salvarEdicaoModal(); } }
     function excluirModal() { if(confirm("Excluir?")) { banco[chaveAtiva].roteiros.splice(indexEditando, 1); salvar(); renderizarHistoricoLocal(); fecharModal(); } }
 
@@ -146,7 +179,9 @@
             grid.innerHTML += html + `</div>`;
         });
     }
+    
     atualizarUI();
+    carregarSincronizacao(); // Puxa os dados da nuvem ao abrir
 </script>
 </body>
 </html>
