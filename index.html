@@ -8,36 +8,36 @@
         :root { --primary: #f8edeb; --accent: #fcd5ce; --text: #4a4e69; --white: #ffffff; --bg: #fdf8f7; --shadow: 0 4px 12px rgba(0,0,0,0.08); }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 1000px; margin: auto; }
-        .school-selector { background: #9a8c98; padding: 12px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
-        select { padding: 8px; border-radius: 8px; border: none; font-weight: bold; background: white; }
-        .home-schedule { background: var(--white); padding: 15px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
+        .school-selector { background: #9a8c98; padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
+        select { padding: 8px; border-radius: 8px; border: none; font-weight: bold; }
+        .home-schedule { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-        .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 80px; }
-        .day-box h4 { margin: 0 0 8px 0; text-align: center; color: #9a8c98; border-bottom: 1px solid var(--primary); }
-        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 25px; }
-        .card-turma { background: var(--white); padding: 15px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; }
-        .schedule-line { font-size: 0.8rem; margin-bottom: 4px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
-        .section-card { background: var(--white); padding: 18px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
-        .btn-main { background-color: #b7b7a4; color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        .btn-add { background: #84a59d; color: white; border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
-        .aula-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
-        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; padding: 12px; border-left: 5px solid var(--accent); }
+        .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 100px; }
+        .day-box h4 { margin: 0 0 10px 0; text-align: center; color: #9a8c98; border-bottom: 2px solid var(--primary); }
+        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .card-turma { background: var(--white); padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; }
+        .schedule-line { font-size: 0.85rem; margin-bottom: 5px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
+        .section-card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; }
+        .btn-main { background-color: #b7b7a4; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-add { background: #84a59d; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+        .aula-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid var(--accent); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="school-selector">
-        <span>🏫 Unidade:</span>
-        <select id="escolaAtiva" onchange="trocarEscola()">
+        <span>🏫 Unidade Ativa:</span>
+        <select id="escolaAtiva" onchange="mudarDeEscola()">
             <option value="JOAO_TAVARES">UE. João Tavares da Costa</option>
             <option value="NATIVIDADE">UE. Natividade Marinho</option>
         </select>
     </div>
     
     <div class="home-schedule">
-        <h3 id="tituloEscola" style="text-align:center; color:#9a8c98; margin:0 0 10px 0;"></h3>
+        <h3 id="tituloEscola" style="text-align:center; color:#9a8c98; margin:0 0 15px 0;"></h3>
         <div class="grid-home-days" id="homeDaysGrid"></div>
     </div>
     
@@ -53,146 +53,126 @@
         <div class="section-card">
             <h3>✍️ Novo Planejamento</h3>
             <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            <input type="text" id="aulaInput" placeholder="Aulas (Ex: 1ª e 5ª aula)">
-            <textarea id="textoInput" rows="4" placeholder="Conteúdo da aula..."></textarea>
-            <button class="btn-main" onclick="salvarNovo()">💾 Salvar Registro</button>
+            <input type="text" id="aulaInput" placeholder="Aula (Ex: 1ª)">
+            <textarea id="textoInput" rows="5" placeholder="Conteúdo..."></textarea>
+            <button class="btn-main" onclick="salvarNovoRegistro()">💾 Salvar</button>
         </div>
         <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
     </div>
 </div>
 
 <script>
-    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/"; 
-    const cores = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
+    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/dados_finais.json"; 
+    const CORES = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
     
-    let escolaAtual = "JOAO_TAVARES";
     let banco = {};
-    let chaveAtiva = "";
+    let escolaAtual = "JOAO_TAVARES";
+    let turmaAtiva = "";
 
-    async function carregarDados() {
+    async function carregar() {
         try {
-            const res = await fetch(`${URL_FIREBASE}/dados_v2.json`);
+            const res = await fetch(URL_FIREBASE);
             const dados = await res.json();
-            if (dados) { 
-                banco = dados; 
-                atualizarTela();
-            }
-        } catch (e) { console.log("Erro ao carregar"); }
+            if (dados) banco = dados;
+            atualizarTudo();
+        } catch (e) { console.log("Erro carregar"); }
     }
 
-    async function enviarParaNuvem() {
+    async function salvar() {
         try {
-            await fetch(`${URL_FIREBASE}/dados_v2.json`, { 
-                method: 'PUT', 
-                body: JSON.stringify(banco) 
-            });
-        } catch(e) { console.log("Erro ao sincronizar"); }
+            await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) });
+            atualizarHorarioGeral();
+        } catch(e) { console.log("Erro salvar"); }
     }
 
-    function trocarEscola() {
+    function mudarDeEscola() {
         escolaAtual = document.getElementById('escolaAtiva').value;
         document.getElementById('painelTurma').style.display = 'none';
-        chaveAtiva = "";
-        atualizarTela();
+        turmaAtiva = "";
+        atualizarTudo();
     }
 
-    function atualizarTela() {
+    function atualizarTudo() {
         const sel = document.getElementById('escolaAtiva');
         document.getElementById('tituloEscola').innerText = "📅 Horário: " + sel.options[sel.selectedIndex].text;
-        renderizarTurmas();
-        renderizarHome();
-    }
-
-    function renderizarTurmas() {
+        
         const grid = document.getElementById('turmaGrid'); 
         grid.innerHTML = '';
+        
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
-            const idUnico = `${escolaAtual}_${nome.replace(/\s/g, '_')}`;
-            if(!banco[idUnico]) banco[idUnico] = { roteiros: [], horários: {} };
+            const id = `${escolaAtual}_${nome.replace(/\s/g, '_')}`; // ID ÚNICO COM NOME DA ESCOLA
+            if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
             
             const card = document.createElement('div');
             card.className = 'card-turma';
-            card.style.borderTopColor = cores[nome];
-            card.innerHTML = `<b style="color:${cores[nome]}">${nome}</b>`;
+            card.style.borderTopColor = CORES[nome];
+            card.innerHTML = `<b style="color:${CORES[nome]}">${nome}</b>`;
             card.onclick = () => {
-                chaveAtiva = idUnico;
+                turmaAtiva = id;
                 document.getElementById('painelTurma').style.display = 'block';
-                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome} (${sel.options[sel.selectedIndex].text})`;
-                renderizarGradeHoraria();
+                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome} - ${escolaAtual.replace('_',' ')}`;
+                renderizarGrade();
                 renderizarHistorico();
             };
             grid.appendChild(card);
         });
+        atualizarHorarioGeral();
     }
 
-    function getDiasEscola() {
-        return (escolaAtual === "NATIVIDADE") ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"];
-    }
+    function getDias() { return (escolaAtual === "NATIVIDADE") ? ["Quinta", "Sexta"] : ["Segunda", "Terça", "Quarta"]; }
 
-    function renderizarGradeHoraria() {
+    function renderizarGrade() {
         const cont = document.getElementById('gradeHorario');
         cont.innerHTML = '';
-        getDiasEscola().forEach(dia => {
-            if(!banco[chaveAtiva].horários[dia]) banco[chaveAtiva].horários[dia] = [""];
-            let html = `<div style="margin-bottom:15px;"><div style="display:flex; justify-content:space-between;"><b>${dia}</b> <button class="btn-add" onclick="addAulaInput('${dia}')">➕ Aula</button></div>`;
-            banco[chaveAtiva].horários[dia].forEach((val, idx) => {
+        getDias().forEach(dia => {
+            if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
+            let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button class="btn-add" onclick="addLinha('${dia}')">➕</button>`;
+            banco[turmaAtiva].horários[dia].forEach((val, idx) => {
                 html += `<div class="aula-row">
-                    <input type="text" value="${val}" onblur="banco['${chaveAtiva}'].horários['${dia}'][${idx}]=this.value; salvarTudo();">
-                    <button style="border:none; background:none;" onclick="banco['${chaveAtiva}'].horários['${dia}'].splice(${idx}, 1); salvarTudo(); renderizarGradeHoraria();">❌</button>
+                    <input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; salvar();">
+                    <button style="border:none;background:none;" onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); salvar(); renderizarGrade();">❌</button>
                 </div>`;
             });
             cont.innerHTML += html + `</div>`;
         });
     }
 
-    function addAulaInput(dia) {
-        banco[chaveAtiva].horários[dia].push("");
-        renderizarGradeHoraria();
-    }
+    function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
 
-    function renderizarHome() {
+    function atualizarHorarioGeral() {
         const grid = document.getElementById('homeDaysGrid');
-        grid.innerHTML = '';
-        getDiasEscola().forEach(dia => {
+        grid.innerHTML = ''; // LIMPA O QUADRO TOTALMENTE
+        
+        getDias().forEach(dia => {
             let html = `<div class="day-box"><h4>${dia}</h4>`;
-            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nomeTurma => {
-                const idUnico = `${escolaAtual}_${nomeTurma.replace(/\s/g, '_')}`;
-                const aulas = banco[idUnico]?.horários?.[dia];
-                if(Array.isArray(aulas)) {
-                    aulas.forEach(a => { if(a) html += `<div class="schedule-line" style="background:${cores[nomeTurma]}">${a}: ${nomeTurma}</div>`; });
-                }
+            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
+                const id = `${escolaAtual}_${nome.replace(/\s/g, '_')}`;
+                const aulas = banco[id]?.horários?.[dia] || [];
+                aulas.forEach(a => {
+                    if(a.trim() !== "") html += `<div class="schedule-line" style="background:${CORES[nome]}">${a}: ${nome}</div>`;
+                });
             });
             grid.innerHTML += html + `</div>`;
         });
     }
 
-    function salvarNovo() {
-        const d = document.getElementById('dataInput').value;
-        const a = document.getElementById('aulaInput').value;
-        const t = document.getElementById('textoInput').value;
-        if(!d || !t) return alert("Preencha data e conteúdo.");
-        
-        banco[chaveAtiva].roteiros.unshift({ data: d, aula: a, texto: t });
-        salvarTudo();
-        renderizarHistorico();
+    function salvarNovoRegistro() {
+        const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoInput').value;
+        if(!d || !t) return alert("Preencha data e conteúdo!");
+        banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, texto: t });
+        salvar(); renderizarHistorico();
         document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoInput').value='';
     }
 
     function renderizarHistorico() {
         const lista = document.getElementById('listaHistorico');
         lista.innerHTML = '';
-        banco[chaveAtiva].roteiros.forEach(r => {
-            lista.innerHTML += `<div class="roteiro-item">📅 <b>${r.data}</b> - ${r.aula}<br><small>${r.texto.substring(0,50)}...</small></div>`;
+        banco[turmaAtiva].roteiros.forEach(r => {
+            lista.innerHTML += `<div class="roteiro-item"><b>📅 ${r.data}</b> - ${r.aula}<br>${r.texto}</div>`;
         });
     }
 
-    function salvarTudo() {
-        renderizarHome();
-        enviarParaNuvem();
-    }
-
-    carregarDados();
-    setInterval(carregarDados, 8000); // Sincroniza a cada 8 segundos
+    carregar();
 </script>
 </body>
 </html>
