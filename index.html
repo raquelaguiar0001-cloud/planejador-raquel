@@ -18,14 +18,36 @@
         .card-turma { background: var(--white); padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; }
         .schedule-line { font-size: 0.85rem; margin-bottom: 5px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
         .section-card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
         .btn-main { background-color: #b7b7a4; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
         .btn-add { background: #84a59d; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
         .aula-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid var(--accent); }
+        .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid var(--accent); cursor: pointer; transition: 0.2s; }
+        .roteiro-item:hover { background: #fdfdfd; transform: scale(1.01); }
+
+        /* Estilo do Modal de Edição */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: var(--shadow); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
     </style>
 </head>
 <body>
+
+<div id="modalEdicao" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitulo" style="margin:0">Editar Planejamento</h3>
+            <button onclick="fecharModal()" style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+        </div>
+        <input type="text" id="editData" placeholder="Data">
+        <input type="text" id="editAula" placeholder="Aula">
+        <textarea id="editTexto" rows="8" placeholder="Conteúdo..."></textarea>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <button class="btn-main" style="background:#84a59d; flex: 2;" onclick="salvarAlteracoes()">💾 Salvar Alterações</button>
+            <button class="btn-main" style="background:#e5989b; flex: 1;" onclick="excluirRegistro()">🗑️ Excluir</button>
+        </div>
+    </div>
+</div>
 
 <div class="container">
     <div class="school-selector">
@@ -55,9 +77,9 @@
             <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
             <input type="text" id="aulaInput" placeholder="Aula (Ex: 1ª)">
             <textarea id="textoInput" rows="5" placeholder="Conteúdo..."></textarea>
-            <button class="btn-main" onclick="salvarNovoRegistro()">💾 Salvar</button>
+            <button class="btn-main" onclick="salvarNovoRegistro()">💾 Salvar na Pasta</button>
         </div>
-        <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
+        <div class="section-card"><h3>📚 Histórico (Clique para abrir/editar)</h3><div id="listaHistorico"></div></div>
     </div>
 </div>
 
@@ -68,6 +90,7 @@
     let banco = {};
     let escolaAtual = "JOAO_TAVARES";
     let turmaAtiva = "";
+    let indexEditando = null;
 
     async function carregar() {
         try {
@@ -95,14 +118,11 @@
     function atualizarTudo() {
         const sel = document.getElementById('escolaAtiva');
         document.getElementById('tituloEscola').innerText = "📅 Horário: " + sel.options[sel.selectedIndex].text;
-        
         const grid = document.getElementById('turmaGrid'); 
         grid.innerHTML = '';
-        
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
-            const id = `${escolaAtual}_${nome.replace(/\s/g, '_')}`; // ID ÚNICO COM NOME DA ESCOLA
+            const id = `${escolaAtual}_${nome.replace(/\s/g, '_')}`;
             if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
-            
             const card = document.createElement('div');
             card.className = 'card-turma';
             card.style.borderTopColor = CORES[nome];
@@ -110,7 +130,7 @@
             card.onclick = () => {
                 turmaAtiva = id;
                 document.getElementById('painelTurma').style.display = 'block';
-                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome} - ${escolaAtual.replace('_',' ')}`;
+                document.getElementById('tituloTurmaDinamico').innerText = `Pasta: ${nome}`;
                 renderizarGrade();
                 renderizarHistorico();
             };
@@ -130,7 +150,7 @@
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
                 html += `<div class="aula-row">
                     <input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; salvar();">
-                    <button style="border:none;background:none;" onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); salvar(); renderizarGrade();">❌</button>
+                    <button style="border:none;background:none;cursor:pointer;" onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(idx,1); salvar(); renderizarGrade();">❌</button>
                 </div>`;
             });
             cont.innerHTML += html + `</div>`;
@@ -141,8 +161,7 @@
 
     function atualizarHorarioGeral() {
         const grid = document.getElementById('homeDaysGrid');
-        grid.innerHTML = ''; // LIMPA O QUADRO TOTALMENTE
-        
+        grid.innerHTML = '';
         getDias().forEach(dia => {
             let html = `<div class="day-box"><h4>${dia}</h4>`;
             ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
@@ -167,9 +186,44 @@
     function renderizarHistorico() {
         const lista = document.getElementById('listaHistorico');
         lista.innerHTML = '';
-        banco[turmaAtiva].roteiros.forEach(r => {
-            lista.innerHTML += `<div class="roteiro-item"><b>📅 ${r.data}</b> - ${r.aula}<br>${r.texto}</div>`;
+        banco[turmaAtiva].roteiros.forEach((r, index) => {
+            lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${index})">
+                <b>📅 ${r.data}</b> - ${r.aula}<br>
+                <small>${r.texto.substring(0, 60)}...</small>
+            </div>`;
         });
+    }
+
+    // FUNÇÕES DO MODAL
+    function abrirModal(index) {
+        indexEditando = index;
+        const r = banco[turmaAtiva].roteiros[index];
+        document.getElementById('editData').value = r.data;
+        document.getElementById('editAula').value = r.aula;
+        document.getElementById('editTexto').value = r.texto;
+        document.getElementById('modalEdicao').style.display = 'flex';
+    }
+
+    function fecharModal() { document.getElementById('modalEdicao').style.display = 'none'; }
+
+    function salvarAlteracoes() {
+        banco[turmaAtiva].roteiros[indexEditando] = {
+            data: document.getElementById('editData').value,
+            aula: document.getElementById('editAula').value,
+            texto: document.getElementById('editTexto').value
+        };
+        salvar();
+        renderizarHistorico();
+        fecharModal();
+    }
+
+    function excluirRegistro() {
+        if(confirm("Tem certeza que deseja excluir este planejamento?")) {
+            banco[turmaAtiva].roteiros.splice(indexEditando, 1);
+            salvar();
+            renderizarHistorico();
+            fecharModal();
+        }
     }
 
     carregar();
