@@ -32,11 +32,12 @@
         
         .btn-toggle { background: #334155; color: white; border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; float: right; }
         .btn-main { background-color: #334155; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
+        .btn-del { background: #e11d48; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #94a3b8; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #f8fafc; }
         textarea { min-height: 100px; resize: vertical; }
         
-        .roteiro-item { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid #64748b; cursor: pointer; }
+        .roteiro-item { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid #64748b; cursor: pointer; position: relative; }
         .subtopico-view { margin-left: 20px; font-size: 0.95rem; color: #475569; display: list-item; margin-top: 5px; }
 
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
@@ -51,13 +52,13 @@
         <input type="text" id="editData" placeholder="Data" onkeyup="mascaraData(this)">
         <input type="text" id="editAula" placeholder="Aula">
         <textarea id="editTitulo" placeholder="Texto do Planejamento" style="font-weight: bold;"></textarea>
-        
         <div id="areaSubtopicosEdit"></div>
-        <button style="margin-top:10px; padding:10px; border-radius: 8px; cursor:pointer;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico Extra</button>
+        <button style="margin-top:10px; padding:8px; border-radius:8px; cursor:pointer;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico</button>
         
-        <div style="margin-top:20px; display:flex; gap:10px;">
-            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Salvar Alterações</button>
+        <div style="margin-top:20px; display:flex; flex-wrap: wrap; gap:10px;">
+            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Salvar</button>
             <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#94a3b8;">Voltar</button>
+            <button class="btn-del" onclick="excluirPlanejamento(indexEditando)" style="width:100%">🗑️ Excluir Planejamento Permanentemente</button>
         </div>
     </div>
 </div>
@@ -81,21 +82,19 @@
         <div class="section-card">
             <button class="btn-toggle" id="btnToggleHorario" onclick="toggleHorarioLocal()">➖ Minimizar Horário</button>
             <h2 id="tituloTurmaDinamico" style="margin-top:0"></h2>
-            <div id="gradeHorarioContainer">
-                <div id="gradeHorario"></div>
-            </div>
+            <div id="gradeHorarioContainer"><div id="gradeHorario"></div></div>
         </div>
 
         <div class="section-card">
             <h3>✍️ Novo Planejamento</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10" onkeyup="mascaraData(this)">
-            <input type="text" id="aulaInput" placeholder="Qual aula?">
-            <textarea id="textoPrincipal" placeholder="Escreva o texto do seu planejamento aqui..."></textarea>
+            <input type="text" id="dataInput" placeholder="Data (Ex: 11022026)" maxlength="10" onkeyup="mascaraData(this)">
+            <input type="text" id="aulaInput" placeholder="Aula">
+            <textarea id="textoPrincipal" placeholder="Texto do seu planejamento..."></textarea>
             <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
         </div>
 
         <div class="section-card">
-            <h3>📚 Histórico (Clique para Editar)</h3>
+            <h3>📚 Histórico (Clique para Editar ou Excluir)</h3>
             <div id="listaHistorico"></div>
         </div>
     </div>
@@ -110,8 +109,7 @@
     async function carregar() {
         const res = await fetch(URL_FIREBASE);
         banco = await res.json() || {};
-        renderizarTurmas();
-        renderizarHome();
+        renderizarTurmas(); renderizarHome();
     }
 
     async function sincronizar() {
@@ -177,10 +175,8 @@
     function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
 
     function salvarNovo() {
-        const d = document.getElementById('dataInput').value;
-        const a = document.getElementById('aulaInput').value;
-        const t = document.getElementById('textoPrincipal').value;
-        if(!d || !t) return alert("Preencha data e o texto do planejamento.");
+        const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
+        if(!d || !t) return alert("Preencha data e texto.");
         if(!banco[turmaAtiva].roteiros) banco[turmaAtiva].roteiros = [];
         banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, titulo: t, subtopicos: [] });
         sincronizar(); renderizarHistorico();
@@ -191,7 +187,6 @@
         const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
         (banco[turmaAtiva].roteiros || []).forEach((r, idx) => {
             let subsHtml = (r.subtopicos || []).map(s => `<div class="subtopico-view">${s}</div>`).join('');
-            // Usamos white-space: pre-wrap para manter as quebras de linha do texto
             lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${idx})">
                 <b>📅 ${r.data}</b> - ${r.aula}<br>
                 <div style="white-space: pre-wrap; margin-top:5px;">${r.titulo}</div>
@@ -202,14 +197,19 @@
 
     function abrirModal(idx) {
         indexEditando = idx; const r = banco[turmaAtiva].roteiros[idx];
-        document.getElementById('editData').value = r.data;
-        document.getElementById('editAula').value = r.aula;
-        document.getElementById('editTitulo').value = r.titulo;
+        document.getElementById('editData').value = r.data; document.getElementById('editAula').value = r.aula; document.getElementById('editTitulo').value = r.titulo;
         const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
         (r.subtopicos || []).forEach((sub, sIdx) => {
             area.innerHTML += `<div style="margin-bottom:5px; display:flex; gap:5px;"><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button></div>`;
         });
         document.getElementById('modalEdicao').style.display = 'flex';
+    }
+
+    function excluirPlanejamento(idx) {
+        if(confirm("Tem certeza que deseja excluir este planejamento? Esta ação não pode ser desfeita.")) {
+            banco[turmaAtiva].roteiros.splice(idx, 1);
+            sincronizar(); renderizarHistorico(); fecharModal();
+        }
     }
 
     function adicionarLinhaSubtopico() {
@@ -232,7 +232,6 @@
     }
 
     function fecharModal() { document.getElementById('modalEdicao').style.display = 'none'; }
-
     carregar();
 </script>
 </body>
