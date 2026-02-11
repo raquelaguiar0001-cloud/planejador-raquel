@@ -3,74 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planejador Raquel Aguiar</title>
+    <title>Planejador - Natividade Marinho</title>
     <style>
         :root { --primary: #f8edeb; --accent: #fcd5ce; --text: #4a4e69; --white: #ffffff; --bg: #fdf8f7; --shadow: 0 4px 12px rgba(0,0,0,0.08); }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { width: 100%; max-width: 1000px; margin: auto; }
-        .school-selector { background: #9a8c98; padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: var(--shadow); }
-        select { padding: 8px; border-radius: 8px; border: none; font-weight: bold; }
+        .container { width: 100%; max-width: 900px; margin: auto; }
+        .header-unidade { background: #84a59d; padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
+        .home-schedule { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
+        .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 120px; }
+        .day-box h4 { margin: 0 0 10px 0; text-align: center; color: #9a8c98; border-bottom: 2px solid var(--primary); }
+        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .card-turma { background: var(--white); padding: 25px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 8px solid #ccc; font-weight: bold; }
+        .schedule-line { font-size: 0.85rem; margin-bottom: 5px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
         .section-card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 30px; }
-        .card-turma { background: var(--white); padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 6px solid #ccc; }
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
-        .btn-main { background-color: #84a59d; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
-        .btn-sub { background: #b7b7a4; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; }
-        
-        /* Estilo dos Tópicos */
+        .btn-main { background-color: #9a8c98; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-sub { background: #b7b7a4; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
         .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid var(--accent); cursor: pointer; }
-        .subtopico-view { margin-left: 20px; font-size: 0.9rem; color: #666; display: list-item; list-style-type: disc; }
-
-        /* Modal */
+        .subtopico-view { margin-left: 20px; font-size: 0.9rem; color: #666; display: list-item; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-        .edit-sub-row { display: flex; gap: 5px; align-items: center; margin-left: 15px; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
+        .edit-sub-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
 <div id="modalEdicao" class="modal">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between;">
-            <h3>Editar Planejamento</h3>
-            <button onclick="fecharModal()" style="border:none; background:none; font-size:20px;">&times;</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0">Editar Planejamento</h3>
+            <button onclick="fecharModal()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
         </div>
         <input type="text" id="editData" placeholder="Data">
-        <input type="text" id="editAula" placeholder="Aula">
-        
-        <p><b>Tópicos/Conteúdos:</b></p>
+        <input type="text" id="editAula" placeholder="Aulas">
+        <input type="text" id="editTitulo" style="font-weight:bold" placeholder="Assunto Principal">
         <div id="areaSubtopicosEdit"></div>
         <button class="btn-sub" onclick="adicionarLinhaSubtopico()">+ Adicionar Subtópico</button>
-        
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button class="btn-main" style="flex: 2;" onclick="salvarAlteracoes()">💾 Salvar Alterações</button>
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button class="btn-main" style="flex: 2; background:#84a59d;" onclick="salvarAlteracoes()">💾 Atualizar</button>
             <button class="btn-main" style="background:#e5989b; flex: 1;" onclick="excluirRegistro()">🗑️ Excluir</button>
         </div>
     </div>
 </div>
 
 <div class="container">
-    <div class="school-selector">
-        <span>🏫 Unidade:</span>
-        <select id="escolaAtiva" onchange="mudarEscola()">
-            <option value="JOAO_TAVARES">UE. João Tavares da Costa</option>
-            <option value="NATIVIDADE">UE. Natividade Marinho</option>
-        </select>
+    <div class="header-unidade">
+        <h1 style="margin:0; font-size: 1.5rem;">UE. Natividade Marinho</h1>
+        <p style="margin:5px 0 0 0; opacity: 0.9;">Planejamento Exclusivo - Raquel Aguiar</p>
+    </div>
+
+    <div class="home-schedule">
+        <h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário da Semana (Natividade)</h3>
+        <div class="grid-home-days" id="homeDaysGrid"></div>
     </div>
 
     <div class="section-card">
-        <h3 style="text-align:center; color:#9a8c98;">📂 Pastas de Turmas</h3>
+        <h3 style="text-align:center; color:#9a8c98;">📂 Pastas por Turma</h3>
         <div class="turmas-grid" id="turmaGrid"></div>
     </div>
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
-            <h3 id="tituloTurmaDinamico"></h3>
+            <h2 id="tituloTurmaDinamico" style="color:#9a8c98; margin-top:0; border-bottom: 2px solid var(--primary); padding-bottom:10px;"></h2>
+            <h3>⏰ Horários no Quadro</h3>
+            <div id="gradeHorario"></div>
+        </div>
+        <div class="section-card">
             <h3>✍️ Novo Planejamento</h3>
             <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            <input type="text" id="aulaInput" placeholder="Aula (Ex: 1ª)">
-            <textarea id="textoPrincipal" placeholder="Título Principal do Planejamento"></textarea>
-            <button class="btn-main" onclick="salvarNovo()">💾 Criar Planejamento</button>
+            <input type="text" id="aulaInput" placeholder="Aulas">
+            <textarea id="textoPrincipal" placeholder="Título Principal"></textarea>
+            <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
         </div>
         <div class="section-card">
             <h3>📚 Histórico</h3>
@@ -80,11 +84,11 @@
 </div>
 
 <script>
-    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/dados_v3.json"; 
+    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/natividade_data.json"; 
     const CORES = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
-    
+    const DIAS = ["Quinta", "Sexta"];
+
     let banco = {};
-    let escolaAtiva = "JOAO_TAVARES";
     let turmaAtiva = "";
     let indexEditando = null;
 
@@ -93,49 +97,74 @@
             const res = await fetch(URL_FIREBASE);
             banco = await res.json() || {};
             renderizarTurmas();
+            renderizarHome();
         } catch (e) { console.error(e); }
     }
 
     async function sincronizar() {
+        renderizarHome();
         await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) });
-    }
-
-    function mudarEscola() {
-        escolaAtiva = document.getElementById('escolaAtiva').value;
-        document.getElementById('painelTurma').style.display = 'none';
-        renderizarTurmas();
     }
 
     function renderizarTurmas() {
         const grid = document.getElementById('turmaGrid');
         grid.innerHTML = '';
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
-            const id = `${escolaAtiva}_${nome.replace(/\s/g, '_')}`;
-            if(!banco[id]) banco[id] = { roteiros: [] };
+            const id = `NAT_${nome.replace(/\s/g, '_')}`;
+            if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
             const card = document.createElement('div');
             card.className = 'card-turma';
             card.style.borderTopColor = CORES[nome];
-            card.innerHTML = `<b style="color:${CORES[nome]}">${nome}</b>`;
+            card.innerHTML = `<span style="color:${CORES[nome]}">${nome}</span>`;
             card.onclick = () => {
                 turmaAtiva = id;
                 document.getElementById('painelTurma').style.display = 'block';
                 document.getElementById('tituloTurmaDinamico').innerText = "Pasta: " + nome;
+                renderizarGrade();
                 renderizarHistorico();
             };
             grid.appendChild(card);
         });
     }
 
-    function salvarNovo() {
-        const d = document.getElementById('dataInput').value;
-        const a = document.getElementById('aulaInput').value;
-        const t = document.getElementById('textoPrincipal').value;
-        if(!d || !t) return alert("Preencha os campos!");
+    function renderizarGrade() {
+        const cont = document.getElementById('gradeHorario');
+        cont.innerHTML = '';
+        DIAS.forEach(dia => {
+            if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
+            let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button class="btn-sub" style="padding:2px 8px" onclick="addLinhaHorario('${dia}')"> + </button>`;
+            banco[turmaAtiva].horários[dia].forEach((val, idx) => {
+                html += `<div style="display:flex; gap:5px; margin-top:5px;">
+                    <input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">
+                    <button style="border:none; background:none;" onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();">❌</button>
+                </div>`;
+            });
+            cont.innerHTML += html + `</div>`;
+        });
+    }
 
+    function addLinhaHorario(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
+
+    function renderizarHome() {
+        const grid = document.getElementById('homeDaysGrid');
+        grid.innerHTML = '';
+        DIAS.forEach(dia => {
+            let html = `<div class="day-box"><h4>${dia}</h4>`;
+            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
+                const id = `NAT_${nome.replace(/\s/g, '_')}`;
+                const aulas = banco[id]?.horários?.[dia] || [];
+                aulas.forEach(a => { if(a.trim()) html += `<div class="schedule-line" style="background:${CORES[nome]}">${a}: ${nome}</div>`; });
+            });
+            grid.innerHTML += html + `</div>`;
+        });
+    }
+
+    function salvarNovo() {
+        const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
+        if(!d || !t) return alert("Preencha data e título.");
         banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, titulo: t, subtopicos: [] });
-        sincronizar();
-        renderizarHistorico();
-        document.getElementById('textoPrincipal').value = '';
+        sincronizar(); renderizarHistorico();
+        document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoPrincipal').value='';
     }
 
     function renderizarHistorico() {
@@ -143,12 +172,11 @@
         lista.innerHTML = '';
         banco[turmaAtiva].roteiros.forEach((r, idx) => {
             let subsHtml = (r.subtopicos || []).map(s => `<div class="subtopico-view">${s}</div>`).join('');
-            lista.innerHTML += `
-                <div class="roteiro-item" onclick="abrirModal(${idx})">
-                    <b>📅 ${r.data}</b> - ${r.aula}<br>
-                    <strong>- ${r.titulo}</strong>
-                    ${subsHtml}
-                </div>`;
+            lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${idx})">
+                <b>📅 ${r.data}</b> - ${r.aula}<br>
+                <strong>- ${r.titulo}</strong>
+                ${subsHtml}
+            </div>`;
         });
     }
 
@@ -157,17 +185,14 @@
         const r = banco[turmaAtiva].roteiros[idx];
         document.getElementById('editData').value = r.data;
         document.getElementById('editAula').value = r.aula;
-        
+        document.getElementById('editTitulo').value = r.titulo;
         const area = document.getElementById('areaSubtopicosEdit');
-        area.innerHTML = `<input type="text" id="editTituloPrincipal" value="${r.titulo}" style="font-weight:bold" placeholder="Título do Planejamento">`;
-        
+        area.innerHTML = '';
         (r.subtopicos || []).forEach((sub, sIdx) => {
-            area.innerHTML += `
-                <div class="edit-sub-row">
-                    <span>•</span>
-                    <input type="text" class="input-sub" value="${sub}" onblur="atualizarArraySub()">
-                    <button onclick="removerSub(${sIdx})" style="border:none; background:none;">❌</button>
-                </div>`;
+            area.innerHTML += `<div class="edit-sub-row">
+                <span>•</span><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()">
+                <button onclick="removerSub(${sIdx})" style="border:none;background:none;">❌</button>
+            </div>`;
         });
         document.getElementById('modalEdicao').style.display = 'flex';
     }
@@ -176,15 +201,13 @@
         const area = document.getElementById('areaSubtopicosEdit');
         const div = document.createElement('div');
         div.className = 'edit-sub-row';
-        div.innerHTML = `<span>•</span><input type="text" class="input-sub" placeholder="Novo subtópico..." onblur="atualizarArraySub()">`;
+        div.innerHTML = `<span>•</span><input type="text" class="input-sub" placeholder="Subtópico..." onblur="salvarEstadoSubs()">`;
         area.appendChild(div);
     }
 
-    function atualizarArraySub() {
+    function salvarEstadoSubs() {
         const inputs = document.querySelectorAll('.input-sub');
-        const novosSubs = [];
-        inputs.forEach(i => { if(i.value) novosSubs.push(i.value); });
-        banco[turmaAtiva].roteiros[indexEditando].subtopicos = novosSubs;
+        banco[turmaAtiva].roteiros[indexEditando].subtopicos = Array.from(inputs).map(i => i.value).filter(v => v !== "");
     }
 
     function removerSub(sIdx) {
@@ -195,18 +218,14 @@
     function salvarAlteracoes() {
         banco[turmaAtiva].roteiros[indexEditando].data = document.getElementById('editData').value;
         banco[turmaAtiva].roteiros[indexEditando].aula = document.getElementById('editAula').value;
-        banco[turmaAtiva].roteiros[indexEditando].titulo = document.getElementById('editTituloPrincipal').value;
-        sincronizar();
-        renderizarHistorico();
-        fecharModal();
+        banco[turmaAtiva].roteiros[indexEditando].titulo = document.getElementById('editTitulo').value;
+        sincronizar(); renderizarHistorico(); fecharModal();
     }
 
     function excluirRegistro() {
-        if(confirm("Excluir este planejamento?")) {
+        if(confirm("Excluir?")) {
             banco[turmaAtiva].roteiros.splice(indexEditando, 1);
-            sincronizar();
-            renderizarHistorico();
-            fecharModal();
+            sincronizar(); renderizarHistorico(); fecharModal();
         }
     }
 
