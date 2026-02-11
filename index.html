@@ -6,10 +6,10 @@
     <title>Planejador - Natividade Marinho</title>
     <style>
         :root { 
-            --primary: #cfd8dc; /* Fundo levemente mais cinza para tirar o excesso de claridade */
+            --primary: #cfd8dc; 
             --card-bg: #ffffff; 
             --text-dark: #263238; 
-            --header-bg: #546e7a; /* Tom mais sóbrio para o cabeçalho */
+            --header-bg: #546e7a; 
             --accent: #ffccbc;
             --shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
@@ -19,44 +19,40 @@
         
         .header-unidade { background: var(--header-bg); padding: 30px 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
         
-        /* Quadro de Horários Estilizado */
         .home-schedule { background: #eceff1; padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; box-shadow: var(--shadow); }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .day-box { background: #fff; border-radius: 15px; padding: 15px; border: 1px solid #cfd8dc; }
-        .day-box h4 { margin: 0 0 12px 0; text-align: center; color: var(--header-bg); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
+        .day-box h4 { margin: 0 0 12px 0; text-align: center; color: var(--header-bg); text-transform: uppercase; font-size: 0.8rem; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
         
         .schedule-tag { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 8px; padding: 10px; border-radius: 8px; color: white; font-weight: 600; }
 
-        /* Grid de Turmas */
-        .section-card { background: var(--card-bg); padding: 25px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); position: relative; border: 1px solid #cfd8dc; }
+        .section-card { background: var(--card-bg); padding: 25px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid #cfd8dc; }
         .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .card-turma { background: #fdfdfd; padding: 25px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border-top: 6px solid #ccc; transition: all 0.2s ease; border-right: 1px solid #eee; border-bottom: 1px solid #eee; }
-        .card-turma:hover { transform: scale(1.02); background: #fff; }
+        .card-turma { background: #fdfdfd; padding: 25px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border-top: 6px solid #ccc; transition: 0.2s; }
+        .card-turma:hover { transform: scale(1.02); }
         
-        /* Botões e Inputs */
         .btn-main { background-color: var(--header-bg); color: white; border: none; padding: 16px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
-        input, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
-        input:focus { border-color: var(--header-bg); background: #fff; }
-
-        /* HISTÓRICO COM CLIQUE PARA ABRIR */
-        .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; }
-        .roteiro-item:hover { border-color: var(--header-bg); }
         
-        /* Cabeçalho do Card (Sempre visível) */
+        /* Inputs com redimensionamento habilitado */
+        input, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
+        textarea { min-height: 120px; resize: vertical; } /* Permite puxar o canto */
+        .input-sub { resize: vertical; min-height: 45px; }
+
+        .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; cursor: pointer; }
         .roteiro-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
         .data-badge { background: var(--header-bg); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
-        .aula-info { font-size: 0.9rem; color: #546e7a; font-weight: 600; }
 
-        /* Conteúdo que abre e fecha */
-        .roteiro-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.3s ease; padding: 0 20px; background: #fff; }
-        .roteiro-item.open .roteiro-content { max-height: 1000px; padding: 20px; border-top: 1px solid #eee; }
+        .roteiro-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 20px; background: #fff; }
+        .roteiro-item.open .roteiro-content { max-height: none; padding: 20px; border-top: 1px solid #eee; }
         
-        .planejamento-texto { white-space: pre-wrap; font-size: 1rem; color: #37474f; margin-bottom: 15px; line-height: 1.6; }
-        .subtopico-view { margin-left: 10px; font-size: 0.9rem; color: #546e7a; display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 5px; background: #f1f8e9; border-radius: 5px; }
+        .planejamento-texto { white-space: pre-wrap; font-size: 1rem; color: #37474f; margin: 15px 0; line-height: 1.6; }
+        .subtopico-view { margin-left: 10px; font-size: 0.9rem; color: #546e7a; display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 8px; background: #f1f8e9; border-radius: 5px; }
 
-        /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(38, 50, 56, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
         .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        
+        /* Botão Editar posicionado no topo do conteúdo */
+        .btn-edit-top { background: var(--header-bg); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -64,36 +60,38 @@
 <div id="modalEdicao" class="modal">
     <div class="modal-content">
         <h3 style="margin-top:0; color:var(--header-bg)">Editar Registro</h3>
+        
+        <div style="margin-bottom:20px; display:flex; gap:10px;">
+            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Atualizar Agora</button>
+            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Sair</button>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div><label style="font-size: 0.75rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
             <div><label style="font-size: 0.75rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
         </div>
-        <label style="font-size: 0.75rem; font-weight: bold;">CONTEÚDO</label>
+        <label style="font-size: 0.75rem; font-weight: bold;">CONTEÚDO PRINCIPAL</label>
         <textarea id="editTitulo"></textarea>
+        
         <div id="areaSubtopicosEdit"></div>
-        <button style="border: 1px solid #cfd8dc; background: #f8f9fa; padding: 10px; width: 100%; border-radius: 10px; cursor: pointer; margin-top: 10px;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico</button>
-        <div style="margin-top:25px; display:flex; gap:10px;">
-            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Salvar Alterações</button>
-            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Sair</button>
-        </div>
-        <button onclick="excluirRegistro()" style="width:100%; background:none; border:none; color:#d32f2f; cursor:pointer; margin-top:20px; font-weight:bold;">🗑️ EXCLUIR PERMANENTEMENTE</button>
+        <button style="border: 1px solid #cfd8dc; background: #f8f9fa; padding: 10px; width: 100%; border-radius: 10px; cursor: pointer; margin-top: 10px;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico Extra</button>
+        
+        <button onclick="excluirRegistro()" style="width:100%; background:none; border:none; color:#d32f2f; cursor:pointer; margin-top:30px; font-weight:bold;">🗑️ EXCLUIR PERMANENTEMENTE</button>
     </div>
 </div>
 
 <div class="container">
     <div class="header-unidade">
         <h1 style="margin:0">Natividade Marinho</h1>
-        <p style="margin:5px 0 0 0; font-size: 0.9rem; opacity: 0.8;">Controle de Planejamento - Raquel Aguiar</p>
+        <p style="margin:5px 0 0 0; font-size: 0.9rem; opacity: 0.8;">Planejamento Semanal - Raquel Aguiar</p>
     </div>
 
     <div class="home-schedule">
-        <h3 style="text-align:center; color:#546e7a; margin-top:0; font-size: 0.85rem;">📅 QUADRO DE HORÁRIOS (QUI / SEX)</h3>
+        <h3 style="text-align:center; color:#546e7a; margin-top:0; font-size: 0.85rem;">📅 GRADE DE HORÁRIOS (QUI / SEX)</h3>
         <div class="grid-home-days" id="homeDaysGrid"></div>
     </div>
 
-    <div class="section-card">
-        <div class="turmas-grid" id="turmaGrid"></div>
-    </div>
+    <div class="section-card"><div class="turmas-grid" id="turmaGrid"></div></div>
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card" style="border-top: 6px solid var(--header-bg);">
@@ -107,7 +105,7 @@
                 <input type="text" id="dataInput" placeholder="Data (00000000)" maxlength="10" onkeyup="mascaraData(this)">
                 <input type="text" id="aulaInput" placeholder="Aula (ex: 1ª e 2ª)">
             </div>
-            <textarea id="textoPrincipal" placeholder="Descreva o que será aplicado em sala..."></textarea>
+            <textarea id="textoPrincipal" placeholder="Descreva o planejamento..."></textarea>
             <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
         </div>
 
@@ -183,7 +181,7 @@
     async function sincronizar() { await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) }); renderizarHome(); }
 
     function renderizarHistorico() {
-        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '<h3 style="color:#546e7a; margin-left:10px">📚 Histórico (Clique para abrir)</h3>';
+        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '<h3 style="color:#546e7a; margin-left:10px">📚 Histórico</h3>';
         (banco[turmaAtiva].roteiros || []).forEach((r, idx) => {
             let subs = (r.subtopicos || []).map(s => `<div class="subtopico-view">📌 ${s}</div>`).join('');
             const card = document.createElement('div');
@@ -195,9 +193,9 @@
                     <span style="font-size:0.7rem; color:#90a4ae">▼</span>
                 </div>
                 <div class="roteiro-content">
+                    <button class="btn-edit-top" onclick="abrirModal(${idx})">✏️ Editar este Registro</button>
                     <div class="planejamento-texto">${r.titulo}</div>
                     ${subs}
-                    <button onclick="abrirModal(${idx})" style="margin-top:15px; padding:8px 15px; border-radius:8px; border:1.5px solid var(--header-bg); background:none; color:var(--header-bg); font-weight:bold; cursor:pointer;">✏️ Editar este dia</button>
                 </div>`;
             lista.appendChild(card);
         });
@@ -219,14 +217,14 @@
         document.getElementById('editTitulo').value = r.titulo;
         const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
         (r.subtopicos || []).forEach((sub) => {
-            area.innerHTML += `<div style="display:flex; gap:10px;"><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button></div>`;
+            area.innerHTML += `<div style="display:flex; gap:10px;"><textarea class="input-sub" onblur="salvarEstadoSubs()">${sub}</textarea> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button></div>`;
         });
         document.getElementById('modalEdicao').style.display = 'flex';
     }
 
     function adicionarLinhaSubtopico() {
         const div = document.createElement('div'); div.style.display="flex"; div.style.gap="10px";
-        div.innerHTML = `<input type="text" class="input-sub" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button>`;
+        div.innerHTML = `<textarea class="input-sub" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"></textarea> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button>`;
         document.getElementById('areaSubtopicosEdit').appendChild(div);
     }
 
