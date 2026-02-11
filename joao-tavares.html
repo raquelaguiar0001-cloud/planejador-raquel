@@ -6,66 +6,57 @@
     <title>Planejador - João Tavares da Costa</title>
     <style>
         :root { 
-            --primary: #eef2f6; /* Fundo azul acinzentado bem calmo */
-            --text-dark: #1e293b; /* Fonte escura para máxima visibilidade */
-            --text-soft: #475569;
-            --white: #ffffff; 
+            --primary: #d1d9e0; /* Fundo cinza-azulado fosco (descanso visual) */
+            --card-bg: #f0f2f5; /* Creme acinzentado suave para os cards */
+            --text-dark: #1e293b; /* Azul noite profundo para leitura clara */
             --header-bg: #334155;
-            /* Tons Frios e Matte para as Turmas (Descanso Visual) */
-            --bg-6: #cfd8dc; --border-6: #78909c;
-            --bg-7: #b2dfdb; --border-7: #4db6ac;
-            --bg-8: #c5cae9; --border-8: #7986cb;
-            --bg-9: #b0bec5; --border-9: #607d8b;
+            /* Cores frias matte para as turmas */
+            --bg-6: #90a4ae; --bg-7: #80cbc4; --bg-8: #9fa8da; --bg-9: #78909c;
         }
 
-        body { font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 15px; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 900px; margin: auto; }
         
-        .header-unidade { background: var(--header-bg); padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; }
+        .header-unidade { background: var(--header-bg); padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* QUADRO GERAL ORGANIZADO */
-        .home-schedule { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #d1d5db; }
+        .home-schedule { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .day-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; }
-        .day-box h4 { margin: 0 0 12px 0; text-align: center; color: var(--text-dark); font-size: 1.1rem; border-bottom: 2px solid var(--primary); }
+        .day-box { background: #e2e8f0; border: 1px solid #cfd8dc; border-radius: 12px; padding: 15px; }
+        .day-box h4 { margin: 0 0 12px 0; text-align: center; color: var(--text-dark); border-bottom: 2px solid #b0bec5; }
         
-        /* Estilos das linhas de aula com fonte escura e visível */
-        .schedule-line { font-size: 0.9rem; margin-bottom: 6px; padding: 10px; border-radius: 8px; color: var(--text-dark); font-weight: 600; text-align: center; border: 1px solid rgba(0,0,0,0.05); }
-        .line-6 { background: var(--bg-6); border-left: 5px solid var(--border-6); }
-        .line-7 { background: var(--bg-7); border-left: 5px solid var(--border-7); }
-        .line-8 { background: var(--bg-8); border-left: 5px solid var(--border-8); }
-        .line-9 { background: var(--bg-9); border-left: 5px solid var(--border-9); }
+        .schedule-line { font-size: 0.9rem; margin-bottom: 6px; padding: 10px; border-radius: 8px; color: var(--text-dark); font-weight: 600; text-align: center; border: 1px solid rgba(0,0,0,0.1); }
+        .line-6 { background: var(--bg-6); } .line-7 { background: var(--bg-7); } .line-8 { background: var(--bg-8); } .line-9 { background: var(--bg-9); }
 
-        .section-card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
+        .section-card { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #b0bec5; }
         .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .card-turma { background: var(--white); padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border: 1px solid #e2e8f0; color: var(--text-dark); }
+        .card-turma { background: #e2e8f0; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border: 1px solid #b0bec5; color: var(--text-dark); transition: 0.2s; }
+        .card-turma:hover { background: #cfd8dc; }
         
-        /* Botão Fechar Pasta */
-        .btn-close { background: #f1f5f9; color: var(--text-dark); border: 1px solid #cbd5e1; padding: 8px 15px; border-radius: 10px; cursor: pointer; float: right; font-weight: bold; }
+        .btn-close { background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 10px; cursor: pointer; float: right; font-weight: bold; }
 
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 1rem; color: var(--text-dark); }
-        .btn-main { background-color: var(--header-bg); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #94a3b8; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #f8fafc; }
+        .btn-main { background-color: #334155; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         
-        .roteiro-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid #64748b; cursor: pointer; color: var(--text-dark); }
-        .subtopico-view { margin-left: 20px; font-size: 0.95rem; color: var(--text-soft); display: list-item; margin-top: 5px; }
+        .roteiro-item { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid #64748b; cursor: pointer; }
+        .subtopico-view { margin-left: 20px; font-size: 0.95rem; color: #475569; display: list-item; margin-top: 5px; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 500px; }
     </style>
 </head>
 <body>
 
 <div id="modalEdicao" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0; color: var(--text-dark)">Editar Planejamento</h3>
+        <h3 style="margin-top:0">Editar Planejamento</h3>
         <input type="text" id="editData">
         <input type="text" id="editAula">
         <input type="text" id="editTitulo" style="font-weight:bold">
         <div id="areaSubtopicosEdit"></div>
-        <button style="margin-top:10px;" onclick="adicionarLinhaSubtopico()">+ Adicionar Subtópico</button>
+        <button style="margin-top:10px;" onclick="adicionarLinhaSubtopico()">+ Subtópico</button>
         <div style="margin-top:20px; display:flex; gap:10px;">
             <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">Atualizar</button>
-            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#e2e8f0; color:var(--text-dark);">Voltar</button>
+            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#94a3b8;">Voltar</button>
         </div>
     </div>
 </div>
@@ -87,21 +78,21 @@
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
-            <button class="btn-close" onclick="minimizarTurma()">✖ Fechar Pasta</button>
-            <h2 id="tituloTurmaDinamico" style="margin-top:0; color: var(--text-dark)"></h2>
+            <button class="btn-close" onclick="minimizarTurma()">✖ Fechar</button>
+            <h2 id="tituloTurmaDinamico" style="margin-top:0"></h2>
             <div id="gradeHorario"></div>
         </div>
 
         <div class="section-card">
             <h3>✍️ Novo Planejamento</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            <input type="text" id="aulaInput" placeholder="Ex: 1ª aula">
+            <input type="text" id="dataInput" placeholder="Data (Apenas números: 11022026)">
+            <input type="text" id="aulaInput" placeholder="Qual aula?">
             <textarea id="textoPrincipal" placeholder="Título do Planejamento"></textarea>
-            <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
+            <button class="btn-main" onclick="salvarNovo()">💾 Salvar Agora</button>
         </div>
 
         <div class="section-card">
-            <h3>📚 Histórico</h3>
+            <h3>📚 Histórico da Turma</h3>
             <div id="listaHistorico"></div>
         </div>
     </div>
@@ -121,8 +112,8 @@
     }
 
     async function sincronizar() {
-        renderizarHome();
         await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) });
+        renderizarHome();
     }
 
     function minimizarTurma() {
@@ -165,7 +156,7 @@
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
         DIAS.forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
-            let html = `<div style="margin-bottom:15px;"><b>${dia}</b> <button style="font-size:0.7rem" onclick="addLinha('${dia}')">+ Adicionar Horário</button>`;
+            let html = `<div style="margin-bottom:15px;"><b>${dia}</b> <button style="font-size:0.7rem" onclick="addLinha('${dia}')">+ Adicionar</button>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
                 html += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();"></div>`;
             });
@@ -175,16 +166,27 @@
     function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
 
     function salvarNovo() {
-        const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
-        if(!d || !t) return alert("Preencha data e título.");
+        const d = document.getElementById('dataInput').value;
+        const a = document.getElementById('aulaInput').value;
+        const t = document.getElementById('textoPrincipal').value;
+        if(!d || !t) return alert("Por favor, preencha a data e o título.");
+
+        // Salva na turma ativa correta
+        if(!banco[turmaAtiva].roteiros) banco[turmaAtiva].roteiros = [];
         banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, titulo: t, subtopicos: [] });
-        sincronizar(); renderizarHistorico();
-        document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoPrincipal').value='';
+        
+        sincronizar(); 
+        renderizarHistorico();
+        
+        document.getElementById('dataInput').value='';
+        document.getElementById('aulaInput').value='';
+        document.getElementById('textoPrincipal').value='';
     }
 
     function renderizarHistorico() {
         const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
-        banco[turmaAtiva].roteiros.forEach((r, idx) => {
+        const roteiros = banco[turmaAtiva].roteiros || [];
+        roteiros.forEach((r, idx) => {
             let subsHtml = (r.subtopicos || []).map(s => `<div class="subtopico-view">${s}</div>`).join('');
             lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${idx})"><b>📅 ${r.data}</b> - ${r.aula}<br><strong>- ${r.titulo}</strong>${subsHtml}</div>`;
         });
@@ -192,7 +194,9 @@
 
     function abrirModal(idx) {
         indexEditando = idx; const r = banco[turmaAtiva].roteiros[idx];
-        document.getElementById('editData').value = r.data; document.getElementById('editAula').value = r.aula; document.getElementById('editTitulo').value = r.titulo;
+        document.getElementById('editData').value = r.data;
+        document.getElementById('editAula').value = r.aula;
+        document.getElementById('editTitulo').value = r.titulo;
         const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
         (r.subtopicos || []).forEach((sub, sIdx) => {
             area.innerHTML += `<div style="margin-bottom:5px;"><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()"></div>`;
