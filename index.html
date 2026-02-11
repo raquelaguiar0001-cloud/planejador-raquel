@@ -70,6 +70,14 @@
     const DIAS = ["Quinta", "Sexta"];
     let banco = {}; let turmaAtiva = ""; let indexEditando = null; let estaDigitando = false;
 
+    function ordenarHorarios(array) {
+        return array.sort((a, b) => {
+            const numA = parseInt(a) || 0;
+            const numB = parseInt(b) || 0;
+            return numA - numB;
+        });
+    }
+
     async function carregar() {
         const res = await fetch(URL_FIREBASE);
         const novosDados = await res.json() || {};
@@ -107,9 +115,16 @@
         const grid = document.getElementById('homeDaysGrid'); grid.innerHTML = '';
         DIAS.forEach(dia => {
             let html = `<div class="day-box"><h4>${dia}</h4>`;
+            let aulasDoDia = [];
             ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
                 const id = `NAT_${nome.replace(/\s/g, '_')}`;
-                (banco[id]?.horários?.[dia] || []).forEach(a => { if(a.trim()) html += `<div class="schedule-line" style="background:${CORES[nome]}">${a}: ${nome}</div>`; });
+                (banco[id]?.horários?.[dia] || []).forEach(a => { 
+                    if(a.trim()) aulasDoDia.push({hora: a, turma: nome});
+                });
+            });
+            aulasDoDia.sort((a, b) => (parseInt(a.hora) || 0) - (parseInt(b.hora) || 0));
+            aulasDoDia.forEach(item => {
+                html += `<div class="schedule-line" style="background:${CORES[item.turma]}">${item.hora}: ${item.turma}</div>`;
             });
             grid.innerHTML += html + `</div>`;
         });
@@ -118,9 +133,10 @@
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
         DIAS.forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
+            banco[turmaAtiva].horários[dia] = ordenarHorarios(banco[turmaAtiva].horários[dia]);
             let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button onclick="addLinha('${dia}')">+</button>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();"><button onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();">❌</button></div>`;
+                html += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar(); renderizarGrade();"><button onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();">❌</button></div>`;
             });
             cont.innerHTML += html + `</div>`;
         });
