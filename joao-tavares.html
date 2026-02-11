@@ -9,12 +9,20 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 900px; margin: auto; }
         .header-unidade { background: #9a8c98; padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
+        
+        /* ESTILO DO QUADRO GERAL */
+        .home-schedule { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
+        .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 120px; }
+        .day-box h4 { margin: 0 0 10px 0; text-align: center; color: #9a8c98; border-bottom: 2px solid var(--primary); }
+        .schedule-line { font-size: 0.85rem; margin-bottom: 5px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
+
         .section-card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
         .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .card-turma { background: var(--white); padding: 25px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 8px solid #ccc; font-weight: bold; }
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
-        .btn-main { background-color: #9a8c98; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
-        .btn-sub { background: #b7b7a4; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+        .btn-main { background-color: #84a59d; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-sub { background: #b7b7a4; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; }
         .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid var(--accent); cursor: pointer; }
         .subtopico-view { margin-left: 20px; font-size: 0.9rem; color: #666; display: list-item; }
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
@@ -36,7 +44,7 @@
         <div id="areaSubtopicosEdit"></div>
         <button class="btn-sub" onclick="adicionarLinhaSubtopico()">+ Adicionar Subtópico</button>
         <div style="display: flex; gap: 10px; margin-top: 25px;">
-            <button class="btn-main" style="flex: 2; background:#84a59d;" onclick="salvarAlteracoes()">💾 Atualizar</button>
+            <button class="btn-main" style="flex: 2;" onclick="salvarAlteracoes()">💾 Atualizar</button>
             <button class="btn-main" style="background:#e5989b; flex: 1;" onclick="excluirRegistro()">🗑️ Excluir</button>
         </div>
     </div>
@@ -45,7 +53,12 @@
 <div class="container">
     <div class="header-unidade">
         <h1>UE. João Tavares da Costa</h1>
-        <p>Planejamento de Segunda, Terça e Quarta</p>
+        <p>Segunda, Terça e Quarta</p>
+    </div>
+
+    <div class="home-schedule">
+        <h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário da Semana</h3>
+        <div class="grid-home-days" id="homeDaysGrid"></div>
     </div>
 
     <div class="section-card">
@@ -54,7 +67,8 @@
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
-            <h2 id="tituloTurmaDinamico"></h2>
+            <h2 id="tituloTurmaDinamico" style="color:#9a8c98;"></h2>
+            <h3>⏰ Definir Horário</h3>
             <div id="gradeHorario"></div>
         </div>
         <div class="section-card">
@@ -78,11 +92,15 @@
     let banco = {}; let turmaAtiva = ""; let indexEditando = null;
 
     async function carregar() {
-        const res = await fetch(URL_FIREBASE);
-        banco = await res.json() || {};
-        renderizarTurmas();
+        try {
+            const res = await fetch(URL_FIREBASE);
+            banco = await res.json() || {};
+            renderizarTurmas();
+            renderizarHome();
+        } catch(e) { console.error(e); }
     }
     async function sincronizar() {
+        renderizarHome();
         await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) });
     }
     function renderizarTurmas() {
@@ -96,21 +114,41 @@
             grid.appendChild(card);
         });
     }
+
+    function renderizarHome() {
+        const grid = document.getElementById('homeDaysGrid');
+        grid.innerHTML = '';
+        DIAS.forEach(dia => {
+            let html = `<div class="day-box"><h4>${dia}</h4>`;
+            ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
+                const id = `JT_${nome.replace(/\s/g, '_')}`;
+                const aulas = banco[id]?.horários?.[dia] || [];
+                aulas.forEach(a => { if(a.trim()) html += `<div class="schedule-line" style="background:${CORES[nome]}">${a}: ${nome}</div>`; });
+            });
+            grid.innerHTML += html + `</div>`;
+        });
+    }
+
     function renderizarGrade() {
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
         DIAS.forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
-            let html = `<div><b>${dia}</b>`;
+            let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button class="btn-sub" style="padding:2px 5px" onclick="addLinha('${dia}')">+</button>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `<input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
+                html += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">
+                <button onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();" style="border:none; background:none;">❌</button></div>`;
             });
             cont.innerHTML += html + `</div>`;
         });
     }
+    function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
+
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
+        if(!d || !t) return alert("Preencha data e título.");
         banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, titulo: t, subtopicos: [] });
         sincronizar(); renderizarHistorico();
+        document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoPrincipal').value='';
     }
     function renderizarHistorico() {
         const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
@@ -143,6 +181,7 @@
         banco[turmaAtiva].roteiros[indexEditando].titulo = document.getElementById('editTitulo').value;
         sincronizar(); renderizarHistorico(); fecharModal();
     }
+    function removerSub(sIdx) { banco[turmaAtiva].roteiros[indexEditando].subtopicos.splice(sIdx, 1); abrirModal(indexEditando); }
     function fecharModal() { document.getElementById('modalEdicao').style.display = 'none'; }
     function excluirRegistro() { if(confirm("Excluir?")) { banco[turmaAtiva].roteiros.splice(indexEditando, 1); sincronizar(); renderizarHistorico(); fecharModal(); } }
     carregar();
