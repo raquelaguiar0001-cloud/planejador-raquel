@@ -5,66 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planejador - João Tavares da Costa</title>
     <style>
-        :root { --primary: #d1d9e0; --card-bg: #f0f2f5; --text-dark: #1e293b; --header-bg: #334155; --bg-6: #90a4ae; --bg-7: #80cbc4; --bg-8: #9fa8da; --bg-9: #78909c; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 15px; }
+        :root { 
+            --primary: #cfd8dc; /* Fundo cinza para descansar a visão */
+            --card-bg: #ffffff; 
+            --text-dark: #263238; 
+            --header-bg: #455a64; /* Tom sóbrio para o cabeçalho */
+            --accent: #ffccbc;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            /* Cores das tags por turma */
+            --bg-6: #90a4ae; --bg-7: #80cbc4; --bg-8: #9fa8da; --bg-9: #78909c;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 15px; line-height: 1.5; }
         .container { width: 100%; max-width: 900px; margin: auto; }
-        .header-unidade { background: var(--header-bg); padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; }
-        .home-schedule { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; }
-        .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .day-box { background: #e2e8f0; border: 1px solid #cfd8dc; border-radius: 12px; padding: 15px; }
-        .day-box h4 { margin: 0 0 12px 0; text-align: center; color: var(--text-dark); border-bottom: 2px solid #b0bec5; }
-        .schedule-line { font-size: 0.9rem; margin-bottom: 6px; padding: 10px; border-radius: 8px; color: var(--text-dark); font-weight: 600; text-align: center; border: 1px solid rgba(0,0,0,0.1); }
+        
+        /* Cabeçalho */
+        .header-unidade { background: var(--header-bg); padding: 30px 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
+        .header-unidade h1 { margin: 0; font-size: 1.6rem; }
+
+        /* Quadro de Horários Estilizado */
+        .home-schedule { background: #eceff1; padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; box-shadow: var(--shadow); }
+        .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .day-box { background: #fff; border-radius: 15px; padding: 15px; border: 1px solid #cfd8dc; }
+        .day-box h4 { margin: 0 0 12px 0; text-align: center; color: var(--header-bg); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
+        
+        .schedule-tag { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 8px; padding: 10px; border-radius: 8px; color: white; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .line-6 { background: var(--bg-6); } .line-7 { background: var(--bg-7); } .line-8 { background: var(--bg-8); } .line-9 { background: var(--bg-9); }
-        .section-card { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #b0bec5; position: relative; }
+
+        /* Grid de Turmas */
+        .section-card { background: var(--card-bg); padding: 25px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); position: relative; border: 1px solid #cfd8dc; }
         .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .card-turma { background: #e2e8f0; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border: 1px solid #b0bec5; color: var(--text-dark); }
-        .btn-toggle { background: #334155; color: white; border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; float: right; }
-        .btn-main { background-color: #334155; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
-        .btn-del { background: #e11d48; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #94a3b8; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #f8fafc; box-sizing: border-box; }
-        textarea { min-height: 100px; resize: vertical; }
-        .roteiro-item { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid #64748b; cursor: pointer; }
-        .subtopico-view { margin-left: 20px; font-size: 0.95rem; color: #475569; display: list-item; margin-top: 5px; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .card-turma { background: #fdfdfd; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border: 1px solid #cfd8dc; transition: all 0.2s ease; }
+        .card-turma:hover { transform: scale(1.03); background: #fff; border-color: var(--header-bg); }
+        
+        /* Botões e Inputs */
+        .btn-main { background-color: var(--header-bg); color: white; border: none; padding: 16px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
+        input, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
+        
+        /* HISTÓRICO EXPANSÍVEL */
+        .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; }
+        .roteiro-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
+        .data-badge { background: var(--header-bg); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+        .aula-info { font-size: 0.9rem; color: #546e7a; font-weight: 600; }
+
+        .roteiro-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 20px; background: #fff; }
+        .roteiro-item.open .roteiro-content { max-height: 1200px; padding: 20px; border-top: 1px solid #eee; }
+        
+        .planejamento-texto { white-space: pre-wrap; font-size: 1rem; color: #37474f; margin-bottom: 15px; }
+        .subtopico-view { margin-left: 10px; font-size: 0.9rem; color: #546e7a; display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 5px; background: #f1f8e9; border-radius: 5px; }
+
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(38, 50, 56, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
+
 <div id="modalEdicao" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0">Editar Planejamento</h3>
-        <input type="text" id="editData" placeholder="Data" onkeyup="mascaraData(this)">
-        <input type="text" id="editAula" placeholder="Aula">
-        <textarea id="editTitulo" placeholder="Texto do Planejamento" style="font-weight: bold;"></textarea>
-        <div id="areaSubtopicosEdit"></div>
-        <button style="margin-top:10px; padding:8px; border-radius:8px; cursor:pointer;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico</button>
-        <div style="margin-top:20px; display:flex; flex-wrap: wrap; gap:10px;">
-            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Salvar</button>
-            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#94a3b8;">Voltar</button>
-            <button class="btn-del" onclick="excluirRegistro()" style="width:100%">🗑️ Excluir Permanentemente</button>
+        <h3 style="margin-top:0; color:var(--header-bg)">Editar Planejamento</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label style="font-size: 0.75rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
+            <div><label style="font-size: 0.75rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
         </div>
+        <textarea id="editTitulo" style="font-weight: bold;"></textarea>
+        <div id="areaSubtopicosEdit"></div>
+        <button style="margin-top:10px; padding:10px; border-radius:10px; cursor:pointer; width:100%; border:1px solid #cfd8dc; background:#f8f9fa;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico</button>
+        <div style="margin-top:25px; display:flex; gap:10px;">
+            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Salvar</button>
+            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Voltar</button>
+        </div>
+        <button onclick="excluirRegistro()" style="width:100%; background:none; border:none; color:#d32f2f; cursor:pointer; margin-top:20px; font-weight:bold;">🗑️ EXCLUIR PERMANENTE</button>
     </div>
 </div>
+
 <div class="container">
-    <div class="header-unidade"><h1>UE. João Tavares da Costa</h1><p>Segunda, Terça e Quarta</p></div>
-    <div class="home-schedule"><h3 style="text-align:center; margin-top:0;">📅 Horário da Semana</h3><div class="grid-home-days" id="homeDaysGrid"></div></div>
+    <div class="header-unidade"><h1>UE. João Tavares da Costa</h1><p style="margin:5px 0 0 0; opacity:0.8;">Segunda, Terça e Quarta</p></div>
+    
+    <div class="home-schedule">
+        <h3 style="text-align:center; color:#546e7a; margin-top:0; font-size:0.85rem;">📅 QUADRO DE HORÁRIOS DA SEMANA</h3>
+        <div class="grid-home-days" id="homeDaysGrid"></div>
+    </div>
+
     <div class="section-card"><div class="turmas-grid" id="turmaGrid"></div></div>
+
     <div id="painelTurma" style="display:none;">
-        <div class="section-card">
-            <button class="btn-toggle" id="btnToggleHorario" onclick="toggleHorarioLocal()">➖ Minimizar Horário</button>
-            <h2 id="tituloTurmaDinamico"></h2>
-            <div id="gradeHorarioContainer"><div id="gradeHorario"></div></div>
+        <div class="section-card" style="border-top: 6px solid var(--header-bg);">
+            <h2 id="tituloTurmaDinamico" style="margin-top:0; color:var(--header-bg); font-size: 1.3rem;"></h2>
+            <div id="gradeHorario" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;"></div>
         </div>
+
         <div class="section-card">
-            <h3>✍️ Novo Planejamento</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10" onkeyup="mascaraData(this)">
-            <input type="text" id="aulaInput" placeholder="Aula">
-            <textarea id="textoPrincipal" placeholder="Texto do planejamento..."></textarea>
+            <h3 style="margin-top:0; font-size:1.1rem;">✍️ Novo Planejamento</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10" onkeyup="mascaraData(this)">
+                <input type="text" id="aulaInput" placeholder="Aula (ex: 1ª)">
+            </div>
+            <textarea id="textoPrincipal" placeholder="Conteúdo do dia..."></textarea>
             <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
         </div>
-        <div class="section-card"><h3>📚 Histórico</h3><div id="listaHistorico"></div></div>
+
+        <div id="listaHistorico"></div>
     </div>
 </div>
+
 <script>
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/joao_tavares_data.json"; 
     const CLASSES = { "6º ano": "line-6", "7º ano": "line-7", "8º ano": "line-8", "9º ano": "line-9" };
@@ -72,11 +116,7 @@
     let banco = {}; let turmaAtiva = ""; let indexEditando = null; let estaDigitando = false;
 
     function ordenarHorarios(array) {
-        return array.sort((a, b) => {
-            const numA = parseInt(a) || 0;
-            const numB = parseInt(b) || 0;
-            return numA - numB;
-        });
+        return array.sort((a, b) => (parseInt(a) || 0) - (parseInt(b) || 0));
     }
 
     async function carregar() {
@@ -96,11 +136,7 @@
         if (v.length >= 5) v = v.substring(0,5) + "/" + v.substring(5,9);
         i.value = v;
     }
-    function toggleHorarioLocal() {
-        const c = document.getElementById('gradeHorarioContainer');
-        c.style.display = (c.style.display === 'none') ? 'block' : 'none';
-        document.getElementById('btnToggleHorario').innerText = (c.style.display === 'none') ? "➕ Mostrar Horário" : "➖ Minimizar Horário";
-    }
+
     function renderizarTurmas() {
         const grid = document.getElementById('turmaGrid'); grid.innerHTML = '';
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
@@ -111,6 +147,7 @@
             grid.appendChild(card);
         });
     }
+
     function renderizarHome() {
         const grid = document.getElementById('homeDaysGrid'); grid.innerHTML = '';
         DIAS.forEach(dia => {
@@ -118,31 +155,53 @@
             let aulasDoDia = [];
             ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
                 const id = `JT_${nome.replace(/\s/g, '_')}`;
-                (banco[id]?.horários?.[dia] || []).forEach(a => { 
-                    if(a.trim()) aulasDoDia.push({hora: a, turma: nome});
-                });
+                (banco[id]?.horários?.[dia] || []).forEach(a => { if(a.trim()) aulasDoDia.push({hora: a, turma: nome}); });
             });
             aulasDoDia.sort((a, b) => (parseInt(a.hora) || 0) - (parseInt(b.hora) || 0));
             aulasDoDia.forEach(item => {
-                html += `<div class="schedule-line ${CLASSES[item.turma]}">${item.hora}: ${item.turma}</div>`;
+                html += `<div class="schedule-tag ${CLASSES[item.turma]}">${item.hora} | ${item.turma}</div>`;
             });
             grid.innerHTML += html + `</div>`;
         });
     }
+
     function renderizarGrade() {
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
         DIAS.forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
             banco[turmaAtiva].horários[dia] = ordenarHorarios(banco[turmaAtiva].horários[dia]);
-            let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button onclick="addLinha('${dia}')">+</button>`;
+            let html = `<div><b style="font-size:0.75rem; color:#78909c">${dia.toUpperCase()}</b> <button onclick="addLinha('${dia}')" style="border:none; background:none; cursor:pointer; color:var(--header-bg)">[+]</button>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar(); renderizarGrade();"><button onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();">❌</button></div>`;
+                html += `<div style="display:flex; gap:5px; margin-top:5px;"><input type="text" style="padding:8px; margin:0" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar(); renderizarGrade();"><button onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();" style="border:none; background:none; cursor:pointer;">❌</button></div>`;
             });
             cont.innerHTML += html + `</div>`;
         });
     }
+
     function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
     async function sincronizar() { await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) }); renderizarHome(); }
+
+    function renderizarHistorico() {
+        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '<h3 style="color:#546e7a; margin-left:10px">📚 Histórico (Clique para abrir)</h3>';
+        (banco[turmaAtiva].roteiros || []).forEach((r, idx) => {
+            let subs = (r.subtopicos || []).map(s => `<div class="subtopico-view">📌 ${s}</div>`).join('');
+            const item = document.createElement('div');
+            item.className = 'roteiro-item';
+            item.innerHTML = `
+                <div class="roteiro-header" onclick="this.parentElement.classList.toggle('open')">
+                    <span class="data-badge">${r.data}</span>
+                    <span class="aula-info">${r.aula}</span>
+                    <span style="font-size:0.7rem; color:#90a4ae">▼</span>
+                </div>
+                <div class="roteiro-content">
+                    <div class="planejamento-texto">${r.titulo}</div>
+                    ${subs}
+                    <button onclick="abrirModal(${idx})" style="margin-top:15px; padding:8px 15px; border-radius:8px; border:1.5px solid var(--header-bg); background:none; color:var(--header-bg); font-weight:bold; cursor:pointer;">✏️ Editar Registro</button>
+                </div>`;
+            lista.appendChild(item);
+        });
+    }
+
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
         if(!d || !t) return alert("Preencha data e texto.");
@@ -151,34 +210,32 @@
         sincronizar(); renderizarHistorico();
         document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoPrincipal').value='';
     }
-    function renderizarHistorico() {
-        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
-        (banco[turmaAtiva].roteiros || []).forEach((r, idx) => {
-            let subs = (r.subtopicos || []).map(s => `<div class="subtopico-view">${s}</div>`).join('');
-            lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${idx})"><b>📅 ${r.data}</b> - ${r.aula}<br><div style="white-space: pre-wrap; margin-top:5px;">${r.titulo}</div>${subs}</div>`;
-        });
-    }
+
     function abrirModal(idx) {
         indexEditando = idx; const r = banco[turmaAtiva].roteiros[idx];
         document.getElementById('editData').value = r.data; document.getElementById('editAula').value = r.aula; document.getElementById('editTitulo').value = r.titulo;
         const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
-        (r.subtopicos || []).forEach((sub, sIdx) => {
-            area.innerHTML += `<div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button></div>`;
+        (r.subtopicos || []).forEach((sub) => {
+            area.innerHTML += `<div style="display:flex; gap:10px;"><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button></div>`;
         });
         document.getElementById('modalEdicao').style.display = 'flex';
     }
+
     function adicionarLinhaSubtopico() {
-        const div = document.createElement('div'); div.style.display="flex"; div.style.gap="5px"; div.style.marginBottom="5px";
-        div.innerHTML = `<input type="text" class="input-sub" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button>`;
+        const div = document.createElement('div'); div.style.display="flex"; div.style.gap="10px";
+        div.innerHTML = `<input type="text" class="input-sub" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button>`;
         document.getElementById('areaSubtopicosEdit').appendChild(div);
     }
+
     function salvarEstadoSubs() { const inputs = document.querySelectorAll('.input-sub'); banco[turmaAtiva].roteiros[indexEditando].subtopicos = Array.from(inputs).map(i => i.value).filter(v => v !== ""); }
+    
     function salvarAlteracoes() {
         banco[turmaAtiva].roteiros[indexEditando].data = document.getElementById('editData').value;
         banco[turmaAtiva].roteiros[indexEditando].aula = document.getElementById('editAula').value;
         banco[turmaAtiva].roteiros[indexEditando].titulo = document.getElementById('editTitulo').value;
         sincronizar(); renderizarHistorico(); fecharModal();
     }
+
     function excluirRegistro() { if(confirm("Excluir permanentemente?")) { banco[turmaAtiva].roteiros.splice(indexEditando, 1); sincronizar(); renderizarHistorico(); fecharModal(); } }
     function fecharModal() { document.getElementById('modalEdicao').style.display = 'none'; indexEditando = null; }
     carregar();
