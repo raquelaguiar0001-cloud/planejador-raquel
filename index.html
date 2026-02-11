@@ -5,44 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planejador - Natividade Marinho</title>
     <style>
-        :root { --primary: #f8edeb; --accent: #fcd5ce; --text: #4a4e69; --white: #ffffff; --bg: #fdf8f7; --shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        :root { 
+            --primary: #d1d9e0; /* Fundo fosco para descanso visual */
+            --card-bg: #fdf8f7; /* Creme suave original */
+            --text-dark: #4a4e69; 
+            --header-bg: #84a59d;
+            --accent: #fcd5ce;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 15px; }
         .container { width: 100%; max-width: 900px; margin: auto; }
-        .header-unidade { background: #84a59d; padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
-        .home-schedule { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 25px; box-shadow: var(--shadow); border: 2.5px solid var(--accent); }
+        
+        .header-unidade { background: var(--header-bg); padding: 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
+        .home-schedule { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 2.5px solid var(--accent); }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
         .day-box { background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; padding: 10px; min-height: 120px; }
-        .day-box h4 { margin: 0 0 10px 0; text-align: center; color: #9a8c98; border-bottom: 2px solid var(--primary); }
-        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .card-turma { background: var(--white); padding: 25px; border-radius: 15px; cursor: pointer; text-align: center; box-shadow: var(--shadow); border-top: 8px solid #ccc; font-weight: bold; }
+        .day-box h4 { margin: 0 0 10px 0; text-align: center; color: #9a8c98; border-bottom: 2px solid var(--accent); }
+        
         .schedule-line { font-size: 0.85rem; margin-bottom: 5px; padding: 6px; border-radius: 8px; color: white; font-weight: 600; text-align: center; }
-        .section-card { background: var(--white); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); }
-        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; box-sizing: border-box; font-family: inherit; }
-        .btn-main { background-color: #9a8c98; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; }
-        .btn-sub { background: #b7b7a4; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+
+        .section-card { background: var(--card-bg); padding: 20px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; }
+        .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .card-turma { background: #fff; padding: 25px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border-top: 8px solid #ccc; }
+        
+        .btn-toggle { background: var(--header-bg); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; float: right; }
+        .btn-main { background-color: #9a8c98; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
+        .btn-del { background: #e5989b; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #eee; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #fff; box-sizing: border-box; }
+        textarea { min-height: 110px; resize: vertical; }
+        
         .roteiro-item { background: #fff; border: 1px solid #eee; border-radius: 12px; margin-bottom: 10px; padding: 15px; border-left: 6px solid var(--accent); cursor: pointer; }
-        .subtopico-view { margin-left: 20px; font-size: 0.9rem; color: #666; display: list-item; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 95%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
-        .edit-sub-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .subtopico-view { margin-left: 20px; font-size: 0.95rem; color: #666; display: list-item; margin-top: 5px; }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
 
 <div id="modalEdicao" class="modal">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0">Editar Planejamento</h3>
-            <button onclick="fecharModal()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
-        </div>
-        <input type="text" id="editData" placeholder="Data">
-        <input type="text" id="editAula" placeholder="Aulas">
-        <input type="text" id="editTitulo" style="font-weight:bold" placeholder="Assunto Principal">
+        <h3 style="margin-top:0">Editar Planejamento</h3>
+        <input type="text" id="editData" placeholder="Data" onkeyup="mascaraData(this)">
+        <input type="text" id="editAula" placeholder="Aula">
+        <textarea id="editTitulo" placeholder="Texto do Planejamento" style="font-weight: bold;"></textarea>
         <div id="areaSubtopicosEdit"></div>
-        <button class="btn-sub" onclick="adicionarLinhaSubtopico()">+ Adicionar Subtópico</button>
-        <div style="display: flex; gap: 10px; margin-top: 25px;">
-            <button class="btn-main" style="flex: 2; background:#84a59d;" onclick="salvarAlteracoes()">💾 Atualizar</button>
-            <button class="btn-main" style="background:#e5989b; flex: 1;" onclick="excluirRegistro()">🗑️ Excluir</button>
+        <button style="margin-top:10px; padding:8px; border-radius:8px; cursor:pointer;" onclick="adicionarLinhaSubtopico()">+ Adicionar Tópico Extra</button>
+        
+        <div style="margin-top:20px; display:flex; flex-wrap: wrap; gap:10px;">
+            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2; background:#84a59d;">💾 Salvar Alterações</button>
+            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#94a3b8;">Voltar</button>
+            <button class="btn-del" onclick="excluirRegistro()" style="width:100%">🗑️ Excluir Permanentemente</button>
         </div>
     </div>
 </div>
@@ -50,34 +65,37 @@
 <div class="container">
     <div class="header-unidade">
         <h1 style="margin:0; font-size: 1.5rem;">UE. Natividade Marinho</h1>
-        <p style="margin:5px 0 0 0; opacity: 0.9;">Planejamento Exclusivo - Raquel Aguiar</p>
+        <p style="margin:5px 0 0 0; opacity:0.9">Planejamento Exclusivo - Raquel Aguiar</p>
     </div>
 
     <div class="home-schedule">
-        <h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário da Semana (Natividade)</h3>
+        <h3 style="text-align:center; color:#9a8c98; margin-top:0;">📅 Horário da Semana (Quinta e Sexta)</h3>
         <div class="grid-home-days" id="homeDaysGrid"></div>
     </div>
 
     <div class="section-card">
-        <h3 style="text-align:center; color:#9a8c98;">📂 Pastas por Turma</h3>
         <div class="turmas-grid" id="turmaGrid"></div>
     </div>
 
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
-            <h2 id="tituloTurmaDinamico" style="color:#9a8c98; margin-top:0; border-bottom: 2px solid var(--primary); padding-bottom:10px;"></h2>
-            <h3>⏰ Horários no Quadro</h3>
-            <div id="gradeHorario"></div>
+            <button class="btn-toggle" id="btnToggleHorario" onclick="toggleHorarioLocal()">➖ Minimizar Horário</button>
+            <h2 id="tituloTurmaDinamico" style="margin-top:0; color:#9a8c98;"></h2>
+            <div id="gradeHorarioContainer">
+                <div id="gradeHorario"></div>
+            </div>
         </div>
+
         <div class="section-card">
             <h3>✍️ Novo Planejamento</h3>
-            <input type="text" id="dataInput" placeholder="Data (Apenas números)" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <input type="text" id="dataInput" placeholder="Data (Apenas números)" maxlength="10" onkeyup="mascaraData(this)">
             <input type="text" id="aulaInput" placeholder="Aulas">
-            <textarea id="textoPrincipal" placeholder="Título Principal"></textarea>
+            <textarea id="textoPrincipal" placeholder="Escreva o texto do seu planejamento aqui..."></textarea>
             <button class="btn-main" onclick="salvarNovo()">💾 Salvar na Pasta</button>
         </div>
+
         <div class="section-card">
-            <h3>📚 Histórico</h3>
+            <h3>📚 Histórico (Clique para Editar)</h3>
             <div id="listaHistorico"></div>
         </div>
     </div>
@@ -87,67 +105,53 @@
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/natividade_data.json"; 
     const CORES = { "6º ano": "#84a59d", "7º ano": "#a5c4d4", "8º ano": "#f4a261", "9º ano": "#9b5de5" };
     const DIAS = ["Quinta", "Sexta"];
-
-    let banco = {};
-    let turmaAtiva = "";
-    let indexEditando = null;
+    let banco = {}; let turmaAtiva = ""; let indexEditando = null;
 
     async function carregar() {
-        try {
-            const res = await fetch(URL_FIREBASE);
-            banco = await res.json() || {};
-            renderizarTurmas();
-            renderizarHome();
-        } catch (e) { console.error(e); }
+        const res = await fetch(URL_FIREBASE);
+        banco = await res.json() || {};
+        renderizarTurmas(); renderizarHome();
     }
 
     async function sincronizar() {
-        renderizarHome();
         await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) });
+        renderizarHome();
+    }
+
+    function mascaraData(i) {
+        let v = i.value.replace(/\D/g, "");
+        if (v.length >= 2) v = v.substring(0,2) + "/" + v.substring(2);
+        if (v.length >= 5) v = v.substring(0,5) + "/" + v.substring(5,9);
+        i.value = v;
+    }
+
+    function toggleHorarioLocal() {
+        const container = document.getElementById('gradeHorarioContainer');
+        const btn = document.getElementById('btnToggleHorario');
+        container.style.display = (container.style.display === 'none') ? 'block' : 'none';
+        btn.innerText = (container.style.display === 'none') ? "➕ Mostrar Horário" : "➖ Minimizar Horário";
     }
 
     function renderizarTurmas() {
-        const grid = document.getElementById('turmaGrid');
-        grid.innerHTML = '';
+        const grid = document.getElementById('turmaGrid'); grid.innerHTML = '';
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
             const id = `NAT_${nome.replace(/\s/g, '_')}`;
             if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
-            const card = document.createElement('div');
-            card.className = 'card-turma';
+            const card = document.createElement('div'); card.className = 'card-turma';
             card.style.borderTopColor = CORES[nome];
             card.innerHTML = `<span style="color:${CORES[nome]}">${nome}</span>`;
-            card.onclick = () => {
-                turmaAtiva = id;
-                document.getElementById('painelTurma').style.display = 'block';
+            card.onclick = () => { 
+                turmaAtiva = id; 
+                document.getElementById('painelTurma').style.display = 'block'; 
                 document.getElementById('tituloTurmaDinamico').innerText = "Pasta: " + nome;
-                renderizarGrade();
-                renderizarHistorico();
+                renderizarGrade(); renderizarHistorico();
             };
             grid.appendChild(card);
         });
     }
 
-    function renderizarGrade() {
-        const cont = document.getElementById('gradeHorario');
-        cont.innerHTML = '';
-        DIAS.forEach(dia => {
-            if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
-            let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button class="btn-sub" style="padding:2px 8px" onclick="addLinhaHorario('${dia}')"> + </button>`;
-            banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `<div style="display:flex; gap:5px; margin-top:5px;">
-                    <input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">
-                    <button style="border:none; background:none;" onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();">❌</button>
-                </div>`;
-            });
-            cont.innerHTML += html + `</div>`;
-        });
-    }
-
-    function addLinhaHorario(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
-
     function renderizarHome() {
-        const grid = document.getElementById('homeDaysGrid');
-        grid.innerHTML = '';
+        const grid = document.getElementById('homeDaysGrid'); grid.innerHTML = '';
         DIAS.forEach(dia => {
             let html = `<div class="day-box"><h4>${dia}</h4>`;
             ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
@@ -159,60 +163,65 @@
         });
     }
 
+    function renderizarGrade() {
+        const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
+        DIAS.forEach(dia => {
+            if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
+            let html = `<div style="margin-bottom:10px;"><b>${dia}</b> <button style="font-size:0.7rem; cursor:pointer;" onclick="addLinha('${dia}')">+</button>`;
+            banco[turmaAtiva].horários[dia].forEach((val, idx) => {
+                html += `<div style="display:flex; gap:5px; margin-top:5px;">
+                    <input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">
+                    <button style="border:none; background:none; cursor:pointer;" onclick="banco['${turmaAtiva}'].horários['${dia}'].splice(${idx},1); sincronizar(); renderizarGrade();">❌</button>
+                </div>`;
+            });
+            cont.innerHTML += html + `</div>`;
+        });
+    }
+    function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
+
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
-        if(!d || !t) return alert("Preencha data e título.");
+        if(!d || !t) return alert("Preencha data e o texto do planejamento.");
+        if(!banco[turmaAtiva].roteiros) banco[turmaAtiva].roteiros = [];
         banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, titulo: t, subtopicos: [] });
         sincronizar(); renderizarHistorico();
         document.getElementById('dataInput').value=''; document.getElementById('aulaInput').value=''; document.getElementById('textoPrincipal').value='';
     }
 
     function renderizarHistorico() {
-        const lista = document.getElementById('listaHistorico');
-        lista.innerHTML = '';
-        banco[turmaAtiva].roteiros.forEach((r, idx) => {
+        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '';
+        (banco[turmaAtiva].roteiros || []).forEach((r, idx) => {
             let subsHtml = (r.subtopicos || []).map(s => `<div class="subtopico-view">${s}</div>`).join('');
             lista.innerHTML += `<div class="roteiro-item" onclick="abrirModal(${idx})">
                 <b>📅 ${r.data}</b> - ${r.aula}<br>
-                <strong>- ${r.titulo}</strong>
+                <div style="white-space: pre-wrap; margin-top:5px;">${r.titulo}</div>
                 ${subsHtml}
             </div>`;
         });
     }
 
     function abrirModal(idx) {
-        indexEditando = idx;
-        const r = banco[turmaAtiva].roteiros[idx];
+        indexEditando = idx; const r = banco[turmaAtiva].roteiros[idx];
         document.getElementById('editData').value = r.data;
         document.getElementById('editAula').value = r.aula;
         document.getElementById('editTitulo').value = r.titulo;
-        const area = document.getElementById('areaSubtopicosEdit');
-        area.innerHTML = '';
+        const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
         (r.subtopicos || []).forEach((sub, sIdx) => {
-            area.innerHTML += `<div class="edit-sub-row">
-                <span>•</span><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()">
-                <button onclick="removerSub(${sIdx})" style="border:none;background:none;">❌</button>
-            </div>`;
+            area.innerHTML += `<div style="margin-bottom:5px; display:flex; gap:5px;"><input type="text" class="input-sub" value="${sub}" onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button></div>`;
         });
         document.getElementById('modalEdicao').style.display = 'flex';
     }
 
     function adicionarLinhaSubtopico() {
         const area = document.getElementById('areaSubtopicosEdit');
-        const div = document.createElement('div');
-        div.className = 'edit-sub-row';
-        div.innerHTML = `<span>•</span><input type="text" class="input-sub" placeholder="Subtópico..." onblur="salvarEstadoSubs()">`;
+        const div = document.createElement('div'); div.style.display = "flex"; div.style.gap = "5px"; div.style.marginBottom = "5px";
+        div.innerHTML = `<input type="text" class="input-sub" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"> <button onclick="this.parentElement.remove(); salvarEstadoSubs();" style="border:none; background:none; cursor:pointer;">❌</button>`;
         area.appendChild(div);
     }
 
     function salvarEstadoSubs() {
         const inputs = document.querySelectorAll('.input-sub');
         banco[turmaAtiva].roteiros[indexEditando].subtopicos = Array.from(inputs).map(i => i.value).filter(v => v !== "");
-    }
-
-    function removerSub(sIdx) {
-        banco[turmaAtiva].roteiros[indexEditando].subtopicos.splice(sIdx, 1);
-        abrirModal(indexEditando);
     }
 
     function salvarAlteracoes() {
@@ -223,14 +232,13 @@
     }
 
     function excluirRegistro() {
-        if(confirm("Excluir?")) {
+        if(confirm("Tem certeza que deseja excluir permanentemente este planejamento?")) {
             banco[turmaAtiva].roteiros.splice(indexEditando, 1);
             sincronizar(); renderizarHistorico(); fecharModal();
         }
     }
 
     function fecharModal() { document.getElementById('modalEdicao').style.display = 'none'; }
-
     carregar();
 </script>
 </body>
