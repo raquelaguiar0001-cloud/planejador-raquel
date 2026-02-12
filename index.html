@@ -35,16 +35,50 @@
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 0.95rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
         textarea { min-height: 80px; resize: vertical; }
 
-        /* AJUSTE DAS CAIXAS LADO A LADO */
-        .row-compacta { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: start; }
+        /* --- AJUSTE DAS CAIXAS LADO A LADO --- */
+        .row-compacta { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        /* Estilo da Grade de Horários inspirado na sua imagem */
+        #gradeHorario { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            background: #eceff1; /* Fundo cinza claro para destacar os cartões brancos */
+            padding: 15px;
+            border-radius: 15px;
+        }
         
-        /* Ajuste específico para a grade de horários (Imagem enviada) */
-        #gradeHorario { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .col-horario { background: #fff; padding: 15px; border-radius: 15px; border: 1px dashed #b0bec5; }
-        .col-horario div { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 5px; }
-        .col-horario input { padding: 8px; font-size: 0.85rem; margin: 4px 0; border-radius: 8px; }
+        .col-horario { 
+            background: #ffffff; 
+            padding: 15px; 
+            border-radius: 15px; 
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .col-horario-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            color: var(--header-bg);
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
         
-        .btn-add-small { padding: 2px 8px; font-size: 1rem; border-radius: 8px; cursor: pointer; border: 1.5px solid #cfd8dc; background: #fff; color: #546e7a; }
+        .btn-add-small { 
+            padding: 0px 6px; 
+            font-size: 1rem; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            border: 1px solid #cfd8dc; 
+            background: #fff; 
+            color: #546e7a; 
+            line-height: 1;
+        }
 
         /* Histórico e Modal */
         .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; cursor: pointer; }
@@ -88,7 +122,7 @@
     
     <div id="painelTurma" style="display:none;">
         <div class="section-card">
-            <h2 id="tituloTurmaDinamico" style="margin-top:0; color:var(--header-bg)"></h2>
+            <h2 id="tituloTurmaDinamico" style="margin-top:0; color:var(--header-bg); text-align: center;"></h2>
             <div id="gradeHorario"></div>
         </div>
         
@@ -164,7 +198,12 @@
 
         ["Quinta", "Sexta"].forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
-            let html = `<div class="col-horario"><div><b style="font-size:0.75rem">${dia.toUpperCase()}</b> <button class="btn-add-small" onclick="addLinha('${dia}')">+</button></div>`;
+            let html = `
+                <div class="col-horario">
+                    <div class="col-horario-header">
+                        ${dia.toUpperCase()} 
+                        <button class="btn-add-small" onclick="addLinha('${dia}')">+</button>
+                    </div>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
                 html += `<input type="text" value="${val}" placeholder="Aula/Horário" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
             });
