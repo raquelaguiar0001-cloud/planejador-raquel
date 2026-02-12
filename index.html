@@ -19,7 +19,6 @@
         
         .header-unidade { background: var(--header-bg); padding: 30px 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
         
-        /* Layout Principal do Painel da Turma */
         .layout-turma { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
         
         .home-schedule { background: #eceff1; padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; box-shadow: var(--shadow); }
@@ -40,7 +39,6 @@
 
         .row-compacta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* Estilo da Grade de Horários */
         #gradeHorario { display: flex; flex-direction: column; gap: 12px; }
         .col-horario { background: #ffffff; padding: 15px; border-radius: 15px; border: 1px solid #cfd8dc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .col-horario-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); margin-bottom: 12px; padding-bottom: 5px; color: var(--header-bg); font-weight: bold; font-size: 0.75rem; }
@@ -50,7 +48,6 @@
         
         .btn-add-small { padding: 2px 8px; font-size: 0.9rem; border-radius: 5px; cursor: pointer; border: 1px solid #cfd8dc; background: #fff; color: #546e7a; line-height: 1; }
 
-        /* Histórico e Itens */
         .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; cursor: pointer; }
         .roteiro-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
         .data-badge { background: var(--header-bg); color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
@@ -62,7 +59,6 @@
         .subtopico-view.checked { background: #f8f9fa; border-color: #e0e0e0; color: #9e9e9e; text-decoration: line-through; }
         .check-box { width: 18px; height: 18px; cursor: pointer; accent-color: var(--header-bg); flex-shrink: 0; }
 
-        /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(38, 50, 56, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
         .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
         .btn-edit-top { background: var(--header-bg); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 10px; font-size: 0.8rem; }
@@ -78,7 +74,7 @@
             <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Sair</button>
         </div>
         <div class="row-compacta">
-            <div><label style="font-size: 0.65rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
+            <div><label style="font-size: 0.65rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)" maxlength="10"></div>
             <div><label style="font-size: 0.65rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
         </div>
         <textarea id="editTitulo"></textarea>
@@ -94,7 +90,6 @@
     <div class="section-card"><div class="turmas-grid" id="turmaGrid"></div></div>
     
     <div id="painelTurma" style="display:none;" class="layout-turma">
-        
         <div id="colunaHorarios">
             <div class="section-card" style="padding: 15px;">
                 <h2 id="tituloTurmaDinamico" style="margin:0 0 15px 0; color:var(--header-bg); text-align: center; font-size: 1.1rem;"></h2>
@@ -114,7 +109,6 @@
             </div>
             <div id="listaHistorico"></div>
         </div>
-
     </div>
 </div>
 
@@ -122,7 +116,7 @@
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/natividade_data.json"; 
     const CORES = { "6º ano": "#546e7a", "7º ano": "#78909c", "8º ano": "#8d6e63", "9º ano": "#6d4c41" };
     let banco = {}; let turmaAtiva = ""; let indexEditando = null;
-    let idsAbertos = new Set(); // Para manter o histórico aberto no refresh
+    let idsAbertos = new Set();
 
     async function carregar() {
         const res = await fetch(URL_FIREBASE);
@@ -135,10 +129,14 @@
         if (document.getElementById('modalEdicao').style.display !== 'flex') carregar(); 
     }, 5000);
 
+    // MÁSCARA CORRIGIDA: Aceita números e insere as barras automaticamente
     function mascaraData(i) {
-        let v = i.value.replace(/\D/g, "");
-        if (v.length >= 2) v = v.substring(0,2) + v.substring(2);
-        if (v.length >= 4) v = v.substring(0,2) + v.substring(2,4) + v.substring(4,8);
+        let v = i.value.replace(/\D/g, ""); 
+        if (v.length > 2 && v.length <= 4) {
+            v = v.substring(0, 2) + "/" + v.substring(2);
+        } else if (v.length > 4) {
+            v = v.substring(0, 2) + "/" + v.substring(2, 4) + "/" + v.substring(4, 8);
+        }
         i.value = v;
     }
 
@@ -189,12 +187,8 @@
     }
 
     function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
-    
     function removerLinhaHorario(dia, idx) {
-        if(confirm("Excluir horário?")) {
-            banco[turmaAtiva].horários[dia].splice(idx, 1);
-            sincronizar(); renderizarGrade();
-        }
+        if(confirm("Excluir horário?")) { banco[turmaAtiva].horários[dia].splice(idx, 1); sincronizar(); renderizarGrade(); }
     }
 
     async function sincronizar() { await fetch(URL_FIREBASE, { method: 'PUT', body: JSON.stringify(banco) }); }
