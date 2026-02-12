@@ -32,21 +32,21 @@
         
         .btn-main { background-color: var(--header-bg); color: white; border: none; padding: 16px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         
-        /* Inputs Gerais */
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 0.95rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
-        textarea { min-height: 100px; resize: vertical; }
+        textarea { min-height: 80px; resize: vertical; }
 
-        /* Ajustes específicos para campos lado a lado (Planejamento e Edição) */
-        .row-compacta { display: flex; gap: 10px; align-items: center; }
-        .row-compacta input { flex: 1; margin: 5px 0; }
+        /* AJUSTE DAS CAIXAS LADO A LADO */
+        .row-compacta { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: start; }
+        
+        /* Ajuste específico para a grade de horários (Imagem enviada) */
+        #gradeHorario { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .col-horario { background: #fff; padding: 15px; border-radius: 15px; border: 1px dashed #b0bec5; }
+        .col-horario div { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 5px; }
+        .col-horario input { padding: 8px; font-size: 0.85rem; margin: 4px 0; border-radius: 8px; }
+        
+        .btn-add-small { padding: 2px 8px; font-size: 1rem; border-radius: 8px; cursor: pointer; border: 1.5px solid #cfd8dc; background: #fff; color: #546e7a; }
 
-        /* Ajuste da Grade de Horários */
-        #gradeHorario { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
-        .col-horario { display: flex; flex-direction: column; background: #f8f9fa; padding: 10px; border-radius: 12px; border: 1px dashed #cfd8dc; }
-        .col-horario input { padding: 8px; font-size: 0.85rem; margin: 4px 0; }
-        .btn-add-small { padding: 4px 8px; font-size: 0.7rem; border-radius: 5px; cursor: pointer; border: 1px solid #546e7a; background: white; color: #546e7a; font-weight: bold; margin-left: 5px; }
-
-        /* Estilos do Histórico e Modal permanecem os mesmos */
+        /* Histórico e Modal */
         .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; cursor: pointer; }
         .roteiro-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
         .data-badge { background: var(--header-bg); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
@@ -71,8 +71,8 @@
             <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Sair</button>
         </div>
         <div class="row-compacta">
-            <div style="flex:1"><label style="font-size: 0.65rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
-            <div style="flex:1"><label style="font-size: 0.65rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
+            <div><label style="font-size: 0.65rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
+            <div><label style="font-size: 0.65rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
         </div>
         <textarea id="editTitulo"></textarea>
         <div id="areaSubtopicosEdit"></div>
@@ -166,7 +166,7 @@
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
             let html = `<div class="col-horario"><div><b style="font-size:0.75rem">${dia.toUpperCase()}</b> <button class="btn-add-small" onclick="addLinha('${dia}')">+</button></div>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `<input type="text" value="${val}" placeholder="Horário" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
+                html += `<input type="text" value="${val}" placeholder="Aula/Horário" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
             });
             cont.innerHTML += html + `</div>`;
         });
