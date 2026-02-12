@@ -32,24 +32,30 @@
         
         .btn-main { background-color: var(--header-bg); color: white; border: none; padding: 16px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         
-        input, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
-        textarea { min-height: 120px; resize: vertical; }
-        .input-sub { resize: vertical; min-height: 45px; margin: 5px 0; }
+        /* Inputs Gerais */
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 0.95rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
+        textarea { min-height: 100px; resize: vertical; }
 
+        /* Ajustes específicos para campos lado a lado (Planejamento e Edição) */
+        .row-compacta { display: flex; gap: 10px; align-items: center; }
+        .row-compacta input { flex: 1; margin: 5px 0; }
+
+        /* Ajuste da Grade de Horários */
+        #gradeHorario { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .col-horario { display: flex; flex-direction: column; background: #f8f9fa; padding: 10px; border-radius: 12px; border: 1px dashed #cfd8dc; }
+        .col-horario input { padding: 8px; font-size: 0.85rem; margin: 4px 0; }
+        .btn-add-small { padding: 4px 8px; font-size: 0.7rem; border-radius: 5px; cursor: pointer; border: 1px solid #546e7a; background: white; color: #546e7a; font-weight: bold; margin-left: 5px; }
+
+        /* Estilos do Histórico e Modal permanecem os mesmos */
         .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; cursor: pointer; }
         .roteiro-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
         .data-badge { background: var(--header-bg); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
-
         .roteiro-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 20px; background: #fff; }
         .roteiro-item.open .roteiro-content { max-height: none; padding: 20px; border-top: 1px solid #eee; }
-        
         .planejamento-texto { white-space: pre-wrap; font-size: 1rem; color: #37474f; margin: 15px 0; line-height: 1.6; }
-        
-        /* Estilo do Checklist */
         .subtopico-view { margin-left: 5px; font-size: 0.95rem; color: #546e7a; display: flex; align-items: flex-start; gap: 12px; margin-top: 8px; padding: 10px; background: #f1f8e9; border-radius: 8px; border: 1px solid #dcedc8; }
         .subtopico-view.checked { background: #f8f9fa; border-color: #e0e0e0; color: #9e9e9e; text-decoration: line-through; }
         .check-box { width: 20px; height: 20px; cursor: pointer; accent-color: var(--header-bg); flex-shrink: 0; }
-
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(38, 50, 56, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
         .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
         .btn-edit-top { background: var(--header-bg); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 15px; }
@@ -64,9 +70,9 @@
             <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">💾 Atualizar</button>
             <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Sair</button>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div><label style="font-size: 0.7rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
-            <div><label style="font-size: 0.7rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
+        <div class="row-compacta">
+            <div style="flex:1"><label style="font-size: 0.65rem; font-weight: bold;">DATA</label><input type="text" id="editData" onkeyup="mascaraData(this)"></div>
+            <div style="flex:1"><label style="font-size: 0.65rem; font-weight: bold;">AULA</label><input type="text" id="editAula"></div>
         </div>
         <textarea id="editTitulo"></textarea>
         <div id="areaSubtopicosEdit"></div>
@@ -79,11 +85,16 @@
     <div class="header-unidade"><h1>Natividade Marinho</h1><p>Planejamento Semanal - Raquel Aguiar</p></div>
     <div class="home-schedule"><div class="grid-home-days" id="homeDaysGrid"></div></div>
     <div class="section-card"><div class="turmas-grid" id="turmaGrid"></div></div>
+    
     <div id="painelTurma" style="display:none;">
-        <div class="section-card"><h2 id="tituloTurmaDinamico"></h2><div id="gradeHorario" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;"></div></div>
         <div class="section-card">
-            <h3>✍️ Novo Planejamento</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <h2 id="tituloTurmaDinamico" style="margin-top:0; color:var(--header-bg)"></h2>
+            <div id="gradeHorario"></div>
+        </div>
+        
+        <div class="section-card">
+            <h3 style="margin-top:0">✍️ Novo Planejamento</h3>
+            <div class="row-compacta">
                 <input type="text" id="dataInput" placeholder="Data (DDMMAAAA)" maxlength="10" onkeyup="mascaraData(this)">
                 <input type="text" id="aulaInput" placeholder="Aula">
             </div>
@@ -120,7 +131,12 @@
             const id = `NAT_${nome.replace(/\s/g, '_')}`;
             const card = document.createElement('div'); card.className = 'card-turma'; 
             card.style.borderTopColor = CORES[nome]; card.innerHTML = `<span>${nome}</span>`;
-            card.onclick = () => { turmaAtiva = id; document.getElementById('painelTurma').style.display = 'block'; renderizarGrade(); renderizarHistorico(); };
+            card.onclick = () => { 
+                turmaAtiva = id; 
+                document.getElementById('tituloTurmaDinamico').innerText = nome;
+                document.getElementById('painelTurma').style.display = 'block'; 
+                renderizarGrade(); renderizarHistorico(); 
+            };
             grid.appendChild(card);
         });
     }
@@ -143,11 +159,14 @@
 
     function renderizarGrade() {
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
+        if(!banco[turmaAtiva]) banco[turmaAtiva] = { horários: {} };
+        if(!banco[turmaAtiva].horários) banco[turmaAtiva].horários = {};
+
         ["Quinta", "Sexta"].forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
-            let html = `<div><b style="font-size:0.75rem">${dia}</b> <button onclick="addLinha('${dia}')">+</button>`;
+            let html = `<div class="col-horario"><div><b style="font-size:0.75rem">${dia.toUpperCase()}</b> <button class="btn-add-small" onclick="addLinha('${dia}')">+</button></div>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `<input type="text" value="${val}" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
+                html += `<input type="text" value="${val}" placeholder="Horário" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
             });
             cont.innerHTML += html + `</div>`;
         });
@@ -172,17 +191,14 @@
             let subs = (r.subtopicos || []).map((s, sIdx) => {
                 const isChecked = typeof s === 'object' ? s.feito : false;
                 const texto = typeof s === 'object' ? s.texto : s;
-                return `
-                    <div class="subtopico-view ${isChecked ? 'checked' : ''}" onclick="event.stopPropagation(); toggleCheck(${idx}, ${sIdx})">
+                return `<div class="subtopico-view ${isChecked ? 'checked' : ''}" onclick="event.stopPropagation(); toggleCheck(${idx}, ${sIdx})">
                         <input type="checkbox" class="check-box" ${isChecked ? 'checked' : ''}>
-                        <span>${texto}</span>
-                    </div>`;
+                        <span>${texto}</span></div>`;
             }).join('');
             
             const card = document.createElement('div');
             card.className = 'roteiro-item';
-            card.innerHTML = `
-                <div class="roteiro-header" onclick="this.parentElement.classList.toggle('open')">
+            card.innerHTML = `<div class="roteiro-header" onclick="this.parentElement.classList.toggle('open')">
                     <span class="data-badge">${r.data}</span>
                     <span class="aula-info">${r.aula}</span>
                     <span>▼</span>
@@ -213,7 +229,7 @@
         const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
         (r.subtopicos || []).forEach((s) => {
             const texto = typeof s === 'object' ? s.texto : s;
-            area.innerHTML += `<div style="display:flex; gap:10px;"><textarea class="input-sub" onblur="salvarEstadoSubs()">${texto}</textarea> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button></div>`;
+            area.innerHTML += `<div style="display:flex; gap:10px;"><textarea class="input-sub" style="min-height:45px; margin:5px 0;" onblur="salvarEstadoSubs()">${texto}</textarea> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button></div>`;
         });
         document.getElementById('modalEdicao').style.display = 'flex';
     }
@@ -229,7 +245,7 @@
     
     function adicionarLinhaSubtopico() {
         const div = document.createElement('div'); div.style.display="flex"; div.style.gap="10px";
-        div.innerHTML = `<textarea class="input-sub" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"></textarea> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button>`;
+        div.innerHTML = `<textarea class="input-sub" style="min-height:45px; margin:5px 0;" placeholder="Novo tópico..." onblur="salvarEstadoSubs()"></textarea> <button onclick="this.parentElement.remove(); salvarEstadoSubs();">❌</button>`;
         document.getElementById('areaSubtopicosEdit').appendChild(div);
     }
 
