@@ -19,7 +19,7 @@
         
         .header-unidade { background: var(--header-bg); padding: 30px 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
         
-        /* Layout Principal do Painel da Turma em Duas Colunas */
+        /* Layout Principal do Painel da Turma */
         .layout-turma { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
         
         .home-schedule { background: #eceff1; padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; box-shadow: var(--shadow); }
@@ -40,7 +40,7 @@
 
         .row-compacta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* Estilo da Grade de Horários com botão excluir */
+        /* Estilo da Grade de Horários */
         #gradeHorario { display: flex; flex-direction: column; gap: 12px; }
         .col-horario { background: #ffffff; padding: 15px; border-radius: 15px; border: 1px solid #cfd8dc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .col-horario-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); margin-bottom: 12px; padding-bottom: 5px; color: var(--header-bg); font-weight: bold; font-size: 0.75rem; }
@@ -102,7 +102,7 @@
             </div>
         </div>
 
-        <div id="colunaLadoADireito">
+        <div id="colunaDireita">
             <div class="section-card">
                 <h3 style="margin-top:0">✍️ Novo Planejamento</h3>
                 <div class="row-compacta">
@@ -122,6 +122,7 @@
     const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/natividade_data.json"; 
     const CORES = { "6º ano": "#546e7a", "7º ano": "#78909c", "8º ano": "#8d6e63", "9º ano": "#6d4c41" };
     let banco = {}; let turmaAtiva = ""; let indexEditando = null;
+    let idsAbertos = new Set(); // Para manter o histórico aberto no refresh
 
     async function carregar() {
         const res = await fetch(URL_FIREBASE);
@@ -129,12 +130,15 @@
         renderizarTurmas(); renderizarHome();
         if(turmaAtiva) { renderizarGrade(); renderizarHistorico(); }
     }
-    setInterval(() => { if (document.getElementById('modalEdicao').style.display !== 'flex') carregar(); }, 5000);
+
+    setInterval(() => { 
+        if (document.getElementById('modalEdicao').style.display !== 'flex') carregar(); 
+    }, 5000);
 
     function mascaraData(i) {
         let v = i.value.replace(/\D/g, "");
-        if (v.length >= 2) v = v.substring(0,2) + "/" + v.substring(2);
-        if (v.length >= 5) v = v.substring(0,5) + "/" + v.substring(5,9);
+        if (v.length >= 2) v = v.substring(0,2) + v.substring(2);
+        if (v.length >= 4) v = v.substring(0,2) + v.substring(2,4) + v.substring(4,8);
         i.value = v;
     }
 
@@ -146,6 +150,7 @@
             card.style.borderTopColor = CORES[nome]; card.innerHTML = `<span>${nome}</span>`;
             card.onclick = () => { 
                 turmaAtiva = id; 
+                idsAbertos.clear();
                 document.getElementById('tituloTurmaDinamico').innerText = nome;
                 document.getElementById('painelTurma').style.display = 'grid'; 
                 renderizarGrade(); renderizarHistorico(); 
@@ -173,22 +178,11 @@
     function renderizarGrade() {
         const cont = document.getElementById('gradeHorario'); cont.innerHTML = '';
         if(!banco[turmaAtiva]) banco[turmaAtiva] = { horários: {} };
-        if(!banco[turmaAtiva].horários) banco[turmaAtiva].horários = {};
-
         ["Quinta", "Sexta"].forEach(dia => {
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
-            let html = `
-                <div class="col-horario">
-                    <div class="col-horario-header">
-                        <span>${dia.toUpperCase()}</span> 
-                        <button class="btn-add-small" onclick="addLinha('${dia}')">+</button>
-                    </div>`;
+            let html = `<div class="col-horario"><div class="col-horario-header"><span>${dia.toUpperCase()}</span><button class="btn-add-small" onclick="addLinha('${dia}')">+</button></div>`;
             banco[turmaAtiva].horários[dia].forEach((val, idx) => {
-                html += `
-                <div class="linha-horario">
-                    <input type="text" value="${val}" placeholder="Horário" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">
-                    <button class="btn-del-horario" onclick="removerLinhaHorario('${dia}', ${idx})">×</button>
-                </div>`;
+                html += `<div class="linha-horario"><input type="text" value="${val}" placeholder="Horário" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();"><button class="btn-del-horario" onclick="removerLinhaHorario('${dia}', ${idx})">×</button></div>`;
             });
             cont.innerHTML += html + `</div>`;
         });
@@ -197,10 +191,9 @@
     function addLinha(dia) { banco[turmaAtiva].horários[dia].push(""); renderizarGrade(); }
     
     function removerLinhaHorario(dia, idx) {
-        if(confirm("Deseja excluir este horário?")) {
+        if(confirm("Excluir horário?")) {
             banco[turmaAtiva].horários[dia].splice(idx, 1);
-            sincronizar();
-            renderizarGrade();
+            sincronizar(); renderizarGrade();
         }
     }
 
@@ -208,37 +201,27 @@
 
     function toggleCheck(roteiroIdx, subIdx) {
         let sub = banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx];
-        if (typeof sub === 'string') {
-            banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx] = { texto: sub, feito: true };
-        } else {
-            banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx].feito = !banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx].feito;
-        }
+        if (typeof sub === 'string') banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx] = { texto: sub, feito: true };
+        else banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx].feito = !banco[turmaAtiva].roteiros[roteiroIdx].subtopicos[subIdx].feito;
         sincronizar(); renderizarHistorico();
     }
 
+    function gerenciarAbertura(idx, elemento) {
+        if (idsAbertos.has(idx)) { idsAbertos.delete(idx); elemento.classList.remove('open'); }
+        else { idsAbertos.add(idx); elemento.classList.add('open'); }
+    }
+
     function renderizarHistorico() {
-        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '<h3 style="margin-top:0">📚 Histórico</h3>';
+        const lista = document.getElementById('listaHistorico'); lista.innerHTML = '<h3>📚 Histórico</h3>';
         (banco[turmaAtiva].roteiros || []).forEach((r, idx) => {
             let subs = (r.subtopicos || []).map((s, sIdx) => {
                 const isChecked = typeof s === 'object' ? s.feito : false;
                 const texto = typeof s === 'object' ? s.texto : s;
-                return `<div class="subtopico-view ${isChecked ? 'checked' : ''}" onclick="event.stopPropagation(); toggleCheck(${idx}, ${sIdx})">
-                        <input type="checkbox" class="check-box" ${isChecked ? 'checked' : ''}>
-                        <span>${texto}</span></div>`;
+                return `<div class="subtopico-view ${isChecked ? 'checked' : ''}" onclick="event.stopPropagation(); toggleCheck(${idx}, ${sIdx})"><input type="checkbox" class="check-box" ${isChecked ? 'checked' : ''}><span>${texto}</span></div>`;
             }).join('');
-            
-            const card = document.createElement('div');
-            card.className = 'roteiro-item';
-            card.innerHTML = `<div class="roteiro-header" onclick="this.parentElement.classList.toggle('open')">
-                    <span class="data-badge">${r.data}</span>
-                    <span class="aula-info" style="font-weight:bold; font-size:0.85rem;">${r.aula}</span>
-                    <span style="font-size:0.7rem;">▼</span>
-                </div>
-                <div class="roteiro-content">
-                    <button class="btn-edit-top" onclick="abrirModal(${idx})">✏️ Editar</button>
-                    <div class="planejamento-texto">${r.titulo}</div>
-                    ${subs}
-                </div>`;
+            const isOpen = idsAbertos.has(idx) ? 'open' : '';
+            const card = document.createElement('div'); card.className = `roteiro-item ${isOpen}`;
+            card.innerHTML = `<div class="roteiro-header" onclick="gerenciarAbertura(${idx}, this.parentElement)"><span class="data-badge">${r.data}</span><span style="font-weight:bold; font-size:0.85rem;">${r.aula}</span><span>▼</span></div><div class="roteiro-content"><button class="btn-edit-top" onclick="abrirModal(${idx})">✏️ Editar</button><div class="planejamento-texto">${r.titulo}</div>${subs}</div>`;
             lista.appendChild(card);
         });
     }
@@ -254,9 +237,7 @@
 
     function abrirModal(idx) {
         indexEditando = idx; const r = banco[turmaAtiva].roteiros[idx];
-        document.getElementById('editData').value = r.data; 
-        document.getElementById('editAula').value = r.aula; 
-        document.getElementById('editTitulo').value = r.titulo;
+        document.getElementById('editData').value = r.data; document.getElementById('editAula').value = r.aula; document.getElementById('editTitulo').value = r.titulo;
         const area = document.getElementById('areaSubtopicosEdit'); area.innerHTML = '';
         (r.subtopicos || []).forEach((s) => {
             const texto = typeof s === 'object' ? s.texto : s;
@@ -268,10 +249,7 @@
     function salvarEstadoSubs() { 
         const inputs = document.querySelectorAll('.input-sub'); 
         const subsAntigos = banco[turmaAtiva].roteiros[indexEditando].subtopicos || [];
-        banco[turmaAtiva].roteiros[indexEditando].subtopicos = Array.from(inputs).map((i, idx) => {
-            const feitoAnterior = subsAntigos[idx]?.feito || false;
-            return { texto: i.value, feito: feitoAnterior };
-        }).filter(v => v.texto !== ""); 
+        banco[turmaAtiva].roteiros[indexEditando].subtopicos = Array.from(inputs).map((i, idx) => ({ texto: i.value, feito: subsAntigos[idx]?.feito || false })).filter(v => v.texto !== ""); 
     }
     
     function adicionarLinhaSubtopico() {
