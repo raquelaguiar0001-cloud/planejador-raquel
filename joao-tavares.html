@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planejador - João Tavares da Costa</title>
+    <title>Planejador - Escola Natividade</title>
     <style>
         :root { 
             --primary: #cfd8dc; /* Fundo cinza para descansar a visão */
@@ -80,7 +80,7 @@
 </div>
 
 <div class="container">
-    <div class="header-unidade"><h1>UE. João Tavares da Costa</h1><p style="margin:5px 0 0 0; opacity:0.8;">Segunda, Terça e Quarta</p></div>
+    <div class="header-unidade"><h1>Escola Natividade</h1><p style="margin:5px 0 0 0; opacity:0.8;">Quinta e Sexta</p></div>
     
     <div class="home-schedule">
         <h3 style="text-align:center; color:#546e7a; margin-top:0; font-size:0.85rem;">📅 QUADRO DE HORÁRIOS DA SEMANA</h3>
@@ -110,9 +110,12 @@
 </div>
 
 <script>
-    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/joao_tavares_data.json"; 
+    /* CONFIGURAÇÕES DA NATIVIDADE APLICADAS */
+    const URL_FIREBASE = "https://planejador-raquel-default-rtdb.firebaseio.com/escola_natividade_data.json"; 
+    const PREFIXO_TURMA = "NAT_"; // Prefixo para não misturar com João Tavares
     const CLASSES = { "6º ano": "line-6", "7º ano": "line-7", "8º ano": "line-8", "9º ano": "line-9" };
-    const DIAS = ["Segunda", "Terça", "Quarta"];
+    const DIAS = ["Quinta", "Sexta"]; // Dias específicos da Natividade
+    
     let banco = {}; let turmaAtiva = ""; let indexEditando = null; let estaDigitando = false;
 
     function ordenarHorarios(array) {
@@ -140,7 +143,7 @@
     function renderizarTurmas() {
         const grid = document.getElementById('turmaGrid'); grid.innerHTML = '';
         ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
-            const id = `JT_${nome.replace(/\s/g, '_')}`;
+            const id = `${PREFIXO_TURMA}${nome.replace(/\s/g, '_')}`;
             if(!banco[id]) banco[id] = { roteiros: [], horários: {} };
             const card = document.createElement('div'); card.className = 'card-turma'; card.innerHTML = nome;
             card.onclick = () => { turmaAtiva = id; document.getElementById('painelTurma').style.display = 'block'; document.getElementById('tituloTurmaDinamico').innerText = "Pasta: " + nome; renderizarGrade(); renderizarHistorico(); };
@@ -154,7 +157,7 @@
             let html = `<div class="day-box"><h4>${dia}</h4>`;
             let aulasDoDia = [];
             ["6º ano", "7º ano", "8º ano", "9º ano"].forEach(nome => {
-                const id = `JT_${nome.replace(/\s/g, '_')}`;
+                const id = `${PREFIXO_TURMA}${nome.replace(/\s/g, '_')}`;
                 (banco[id]?.horários?.[dia] || []).forEach(a => { if(a.trim()) aulasDoDia.push({hora: a, turma: nome}); });
             });
             aulasDoDia.sort((a, b) => (parseInt(a.hora) || 0) - (parseInt(b.hora) || 0));
