@@ -6,24 +6,21 @@
     <title>Planejador - João Tavares da Costa</title>
     <style>
         :root { 
-            --primary: #cfd8dc; /* Fundo cinza para descansar a visão */
+            --primary: #cfd8dc; 
             --card-bg: #ffffff; 
             --text-dark: #263238; 
-            --header-bg: #455a64; /* Tom sóbrio para o cabeçalho */
+            --header-bg: #455a64; 
             --accent: #ffccbc;
             --shadow: 0 4px 12px rgba(0,0,0,0.08);
-            /* Cores das tags por turma */
             --bg-6: #90a4ae; --bg-7: #80cbc4; --bg-8: #9fa8da; --bg-9: #78909c;
         }
 
         body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 15px; line-height: 1.5; }
         .container { width: 100%; max-width: 900px; margin: auto; }
         
-        /* Cabeçalho */
         .header-unidade { background: var(--header-bg); padding: 30px 20px; border-radius: 20px; color: white; text-align: center; margin-bottom: 25px; box-shadow: var(--shadow); }
         .header-unidade h1 { margin: 0; font-size: 1.6rem; }
 
-        /* Quadro de Horários Estilizado */
         .home-schedule { background: #eceff1; padding: 20px; border-radius: 20px; margin-bottom: 25px; border: 1px solid #b0bec5; box-shadow: var(--shadow); }
         .grid-home-days { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .day-box { background: #fff; border-radius: 15px; padding: 15px; border: 1px solid #cfd8dc; }
@@ -32,17 +29,14 @@
         .schedule-tag { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; margin-bottom: 8px; padding: 10px; border-radius: 8px; color: white; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .line-6 { background: var(--bg-6); } .line-7 { background: var(--bg-7); } .line-8 { background: var(--bg-8); } .line-9 { background: var(--bg-9); }
 
-        /* Grid de Turmas */
         .section-card { background: var(--card-bg); padding: 25px; border-radius: 20px; margin-bottom: 20px; box-shadow: var(--shadow); position: relative; border: 1px solid #cfd8dc; }
         .turmas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         .card-turma { background: #fdfdfd; padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; font-weight: bold; border: 1px solid #cfd8dc; transition: all 0.2s ease; }
         .card-turma:hover { transform: scale(1.03); background: #fff; border-color: var(--header-bg); }
         
-        /* Botões e Inputs */
         .btn-main { background-color: var(--header-bg); color: white; border: none; padding: 16px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; }
         input, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1.5px solid #cfd8dc; border-radius: 10px; font-size: 1rem; color: var(--text-dark); background: #fcfcfc; box-sizing: border-box; }
         
-        /* HISTÓRICO EXPANSÍVEL */
         .roteiro-item { background: #fff; border: 1px solid #cfd8dc; border-radius: 15px; margin-bottom: 12px; overflow: hidden; transition: 0.3s; cursor: pointer; }
         .roteiro-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; }
         .data-badge { background: var(--header-bg); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
@@ -54,7 +48,6 @@
         .planejamento-texto { white-space: pre-wrap; font-size: 1rem; color: #37474f; margin-bottom: 15px; }
         .subtopico-view { margin-left: 10px; font-size: 0.9rem; color: #546e7a; display: flex; align-items: center; gap: 8px; margin-top: 5px; padding: 5px; background: #f1f8e9; border-radius: 5px; }
 
-        /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(38, 50, 56, 0.85); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
         .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
     </style>
@@ -122,13 +115,24 @@
     async function carregar() {
         const res = await fetch(URL_FIREBASE);
         const novosDados = await res.json() || {};
-        if (JSON.stringify(novosDados) !== JSON.stringify(banco) && !estaDigitando && !indexEditando) {
+        
+        // Verifica se há abas de histórico abertas
+        const temAbaAberta = document.querySelector('.roteiro-item.open');
+        const modalAberto = document.getElementById('modalEdicao').style.display === 'flex';
+
+        if (JSON.stringify(novosDados) !== JSON.stringify(banco) && !estaDigitando && !indexEditando && !temAbaAberta && !modalAberto) {
             banco = novosDados; renderizarTurmas(); renderizarHome();
             if(turmaAtiva) { renderizarGrade(); renderizarHistorico(); }
         }
     }
-    setInterval(() => { if (!estaDigitando && document.getElementById('modalEdicao').style.display !== 'flex') carregar(); }, 5000);
-    document.addEventListener('input', () => { estaDigitando = true; clearTimeout(window.tTimer); window.tTimer = setTimeout(()=>estaDigitando=false, 3000);});
+    
+    setInterval(carregar, 5000);
+
+    document.addEventListener('input', () => { 
+        estaDigitando = true; 
+        clearTimeout(window.tTimer); 
+        window.tTimer = setTimeout(()=>estaDigitando=false, 3000);
+    });
 
     function mascaraData(i) {
         let v = i.value.replace(/\D/g, "");
