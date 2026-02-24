@@ -17,15 +17,12 @@
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--primary); color: var(--text-dark); margin: 0; padding: 0; }
         
-        /* Layout Superior - Turmas */
         .turmas-nav { background: #fff; padding: 15px; display: flex; justify-content: center; gap: 10px; border-bottom: 2px solid #ddd; position: sticky; top: 0; z-index: 100; }
         .btn-turma { padding: 10px 20px; border: 2px solid var(--header-bg); border-radius: 8px; background: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-turma.active { background: var(--header-bg); color: white; }
 
-        /* Container Principal em Grid */
         .main-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; padding: 20px; max-width: 1400px; margin: auto; }
 
-        /* Coluna Esquerda: Quadro de Horários */
         .left-col { background: #fff; border-radius: 12px; padding: 20px; box-shadow: var(--shadow); height: fit-content; border-left: 6px solid var(--header-bg); }
         .left-col h2 { font-size: 1.2rem; text-align: center; color: var(--header-bg); border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
 
@@ -33,7 +30,6 @@
         .day-box h4 { margin: 10px 0; color: #546e7a; text-transform: uppercase; font-size: 0.8rem; }
         .schedule-tag { padding: 8px; border-radius: 6px; color: white; font-size: 0.85rem; margin-bottom: 5px; font-weight: bold; }
 
-        /* Coluna Direita: Painel da Turma */
         .right-col { display: flex; flex-direction: column; gap: 15px; }
         
         .collapsible-section { background: #fff; border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
@@ -41,20 +37,19 @@
         .collapsible-content { padding: 20px; display: none; }
         .collapsible-section.open .collapsible-content { display: block; }
 
-        /* Estilos Internos */
         .line-6 { background: var(--bg-6); } .line-7 { background: var(--bg-7); } .line-8 { background: var(--bg-8); } .line-9 { background: var(--bg-9); }
         input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
         .btn-main { background: var(--header-bg); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
 
-        /* Histórico */
-        .roteiro-item { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; }
-        .roteiro-header { padding: 12px; display: flex; justify-content: space-between; background: #fff; cursor: pointer; border-radius: 10px; }
+        .roteiro-item { border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; background: #fff; }
+        .roteiro-header { padding: 12px; display: flex; justify-content: space-between; cursor: pointer; border-radius: 10px; }
         .roteiro-content { padding: 15px; display: none; border-top: 1px solid #eee; }
         .roteiro-item.open .roteiro-content { display: block; }
 
-        /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+        
+        .subtopico-edit-row { display: flex; gap: 10px; margin-bottom: 5px; }
 
         @media (max-width: 850px) { .main-layout { grid-template-columns: 1fr; } }
     </style>
@@ -97,14 +92,21 @@
 
 <div id="modalEdicao" class="modal">
     <div class="modal-content">
-        <h3>Editar Registro</h3>
-        <input type="text" id="editData" onkeyup="mascaraData(this)">
-        <input type="text" id="editAula">
+        <h3 style="color:var(--header-bg)">Editar Registro</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <input type="text" id="editData" onkeyup="mascaraData(this)">
+            <input type="text" id="editAula">
+        </div>
         <textarea id="editTitulo" rows="4"></textarea>
+        
         <div id="areaSubtopicosEdit"></div>
-        <button onclick="adicionarLinhaSubtopico()">+ Tópico</button><br><br>
-        <button class="btn-main" onclick="salvarAlteracoes()">Salvar Alterações</button>
-        <button onclick="fecharModal()" style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;">Cancelar</button>
+        <button onclick="adicionarLinhaSubtopico()" style="width:100%; background:#f0f0f0; border:1px solid #ccc; padding:10px; border-radius:8px; cursor:pointer; margin-top:10px;">+ Adicionar Tópico</button>
+        
+        <div style="margin-top:20px; display:flex; gap:10px;">
+            <button class="btn-main" onclick="salvarAlteracoes()" style="flex:2">Salvar Alterações</button>
+            <button class="btn-main" onclick="fecharModal()" style="flex:1; background:#90a4ae;">Cancelar</button>
+        </div>
+        <button onclick="excluirRegistro()" style="width:100%; background:none; border:none; color:red; cursor:pointer; margin-top:15px; font-weight:bold;">🗑️ Excluir Permanente</button>
     </div>
 </div>
 
@@ -120,7 +122,9 @@
         const res = await fetch(URL_FIREBASE);
         const novosDados = await res.json() || {};
         const temAbaAberta = document.querySelector('.roteiro-item.open');
-        if (JSON.stringify(novosDados) !== JSON.stringify(banco) && !estaDigitando && !indexEditando && !temAbaAberta) {
+        const modalAberto = document.getElementById('modalEdicao').style.display === 'flex';
+
+        if (JSON.stringify(novosDados) !== JSON.stringify(banco) && !estaDigitando && !indexEditando && !temAbaAberta && !modalAberto) {
             banco = novosDados; renderizarTurmas(); renderizarHome();
             if(turmaAtiva) { renderizarGrade(); renderizarHistorico(); }
         }
@@ -174,7 +178,7 @@
             if(!banco[turmaAtiva].horários[dia]) banco[turmaAtiva].horários[dia] = [""];
             let html = `<div style="background:#f9f9f9; padding:10px; border-radius:8px;"><b>${dia}</b><br>`;
             banco[turmaAtiva].horários[dia].forEach((v, idx) => {
-                html += `<input type="text" value="${v}" style="padding:5px; margin-bottom:2px;" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();">`;
+                html += `<div style="display:flex; gap:2px;"><input type="text" value="${v}" style="padding:5px; margin-bottom:2px;" onblur="banco['${turmaAtiva}'].horários['${dia}'][${idx}]=this.value; sincronizar();"></div>`;
             });
             html += `<button onclick="banco['${turmaAtiva}'].horários['${dia}'].push(''); renderizarGrade();" style="width:100%; background:#eee; border:none; cursor:pointer;">+</button></div>`;
             cont.innerHTML += html;
@@ -194,9 +198,9 @@
                     <span>${r.data} - ${r.aula}</span> <span>▽</span>
                 </div>
                 <div class="roteiro-content">
-                    <p style="white-space:pre-wrap;">${r.titulo}</p>
-                    ${(r.subtopicos || []).map(s => `<div>• ${s}</div>`).join('')}
-                    <button onclick="abrirModal(${idx})" style="margin-top:10px; cursor:pointer;">✏️ Editar</button>
+                    <p style="white-space:pre-wrap; font-weight: bold; margin-bottom:10px;">${r.titulo}</p>
+                    ${(r.subtopicos || []).map(s => `<div style="margin-left:10px; color:#555;">📌 ${s}</div>`).join('')}
+                    <button class="btn-main" onclick="abrirModal(${idx})" style="margin-top:15px; padding:8px; font-size:0.8rem; width:auto;">✏️ Editar Registro</button>
                 </div>`;
             lista.appendChild(item);
         });
@@ -204,7 +208,7 @@
 
     function salvarNovo() {
         const d = document.getElementById('dataInput').value, a = document.getElementById('aulaInput').value, t = document.getElementById('textoPrincipal').value;
-        if(!d || !t) return alert("Preencha os campos!");
+        if(!d || !t) return alert("Preencha Data e Conteúdo!");
         if(!banco[turmaAtiva].roteiros) banco[turmaAtiva].roteiros = [];
         banco[turmaAtiva].roteiros.unshift({ data: d, aula: a, titulo: t, subtopicos: [] });
         sincronizar(); renderizarHistorico();
@@ -213,16 +217,37 @@
 
     function abrirModal(idx) {
         indexEditando = idx; const r = banco[turmaAtiva].roteiros[idx];
-        document.getElementById('editData').value = r.data; document.getElementById('editAula').value = r.aula; document.getElementById('editTitulo').value = r.titulo;
+        document.getElementById('editData').value = r.data; 
+        document.getElementById('editAula').value = r.aula; 
+        document.getElementById('editTitulo').value = r.titulo;
+        
+        const area = document.getElementById('areaSubtopicosEdit'); 
+        area.innerHTML = '';
+        (r.subtopicos || []).forEach((sub) => {
+            area.innerHTML += `<div class="subtopico-edit-row"><input type="text" class="input-sub" value="${sub}"> <button onclick="this.parentElement.remove()" style="border:none; background:none; cursor:pointer;">❌</button></div>`;
+        });
         document.getElementById('modalEdicao').style.display = 'flex';
     }
+
+    function adicionarLinhaSubtopico() {
+        const div = document.createElement('div'); div.className = 'subtopico-edit-row';
+        div.innerHTML = `<input type="text" class="input-sub" placeholder="Novo tópico..."> <button onclick="this.parentElement.remove()" style="border:none; background:none; cursor:pointer;">❌</button>`;
+        document.getElementById('areaSubtopicosEdit').appendChild(div);
+    }
+
     function fecharModal() { document.getElementById('modalEdicao').style.display = 'none'; indexEditando = null; }
     
     function salvarAlteracoes() {
-        banco[turmaAtiva].roteiros[indexEditando].data = document.getElementById('editData').value;
-        banco[turmaAtiva].roteiros[indexEditando].titulo = document.getElementById('editTitulo').value;
+        const r = banco[turmaAtiva].roteiros[indexEditando];
+        r.data = document.getElementById('editData').value;
+        r.aula = document.getElementById('editAula').value;
+        r.titulo = document.getElementById('editTitulo').value;
+        const inputs = document.querySelectorAll('.input-sub');
+        r.subtopicos = Array.from(inputs).map(i => i.value).filter(v => v !== "");
         sincronizar(); renderizarHistorico(); fecharModal();
     }
+
+    function excluirRegistro() { if(confirm("Excluir permanentemente?")) { banco[turmaAtiva].roteiros.splice(indexEditando, 1); sincronizar(); renderizarHistorico(); fecharModal(); } }
 
     setInterval(carregar, 5000);
     carregar();
